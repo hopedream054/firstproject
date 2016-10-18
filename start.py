@@ -39,7 +39,7 @@ class Enemy:
         self.x=xx
         self.y=yy
         self.frame=0
-        self.hp=3
+        self.hp=1
         if Enemy.image==None:
             Enemy.image = load_image('enemy.png')
     def draw(self):
@@ -185,6 +185,7 @@ def update():
             for j in range(0, tani):
                 if collide(enemy[i],tan[j]):
                     enemy[i].y=800
+                    enemy[i].x = 900
         else:
             for j in range(0, 50):
                 tan[j].update()
@@ -211,10 +212,14 @@ def update():
         for i in range(0,enemytani):
             if bodyat(x,y,enemytan[i])==True:
                 hp=hp-1
+                if hp==0:
+                    x,y=0,0
     else:
         for i in range(0,50):
             if bodyat(x,y,enemytan[i])==True:
                 hp=hp-1
+                if hp==0:
+                    x,y=0,0
 
 
     if x_right == True and x<=660:
