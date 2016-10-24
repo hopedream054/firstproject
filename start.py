@@ -1,4 +1,4 @@
-from pico2d import *
+﻿from pico2d import *
 
 class Map:
     image=None
@@ -39,7 +39,7 @@ class Enemy:
         self.x=xx
         self.y=yy
         self.frame=0
-        self.hp=1
+        self.hp=2
         if Enemy.image==None:
             Enemy.image = load_image('enemy.png')
     def draw(self):
