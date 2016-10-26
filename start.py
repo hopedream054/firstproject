@@ -14,7 +14,7 @@ class Map:
             self.y=self.y-10
         else:
             self.y=900
-
+#gl
 class bullet:
     image=None
     def __init__(self, xx,yy,spe):
