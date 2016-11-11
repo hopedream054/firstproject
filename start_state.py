@@ -1,9 +1,8 @@
 import game_framework
-import start
+
 from pico2d import *
 
 
-#import start
 
 name = "StartState"
 image = None
@@ -24,7 +23,7 @@ def update(frame_time):
 
     if (logo_time > 0.5):
         logo_time = 0
-        game_framework.push_state(start)
+        #game_framework.push_state(start)
         #]game_framework.quit()
     logo_time += frame_time
 
@@ -36,6 +35,9 @@ def draw(frame_time):
 
 def handle_events(frame_time):
     events = get_events()
+    for event in events:
+        if event.type == SDL_QUIT:
+            game_framework.quit()
 
 
 def pause(): pass
