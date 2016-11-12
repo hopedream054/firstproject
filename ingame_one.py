@@ -1,11 +1,4 @@
-import random
-import json
-import os
 
-
-from pico2d import *
-
-import game_framework
 
 
 
@@ -22,11 +15,6 @@ boy = None
 grass = None
 font = None
 
-class Luci:
-    def __init__(self):
-        self.image=load_image('charactersample.png')
-    def draw(self):
-        self.image.draw(self.x,self.y);
 
 
 

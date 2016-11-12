@@ -1,4 +1,5 @@
 import game_framework
+import testpage
 
 from pico2d import *
 
@@ -23,8 +24,9 @@ def update(frame_time):
 
     if (logo_time > 0.5):
         logo_time = 0
-        #game_framework.push_state(start)
-        #]game_framework.quit()
+
+        game_framework.push_state(testpage)
+        #game_framework.quit()
     logo_time += frame_time
 
 def draw(frame_time):
