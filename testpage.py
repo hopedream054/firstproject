@@ -6,14 +6,18 @@ import os
 from pico2d import *
 import game_framework
 
+from class_enemy import Enemy,Enemybullet,Boss
+
+
 mainhero=None
 total_frametime=None
 x_right=x_left=y_up=y_down=None
 
+boss=None
 
 bastion=[]
 baseatack=[]
-
+enemyatack=[]
 
 class Luci:                   #메인캐릭터
     def __init__(self,xx,yy):
@@ -82,37 +86,28 @@ class bullet:                  #주인공 기본 탄환
     def get_damage(self):
         return self.damage
 
-class Enemy:                        #적1 바스티온 기관총
-    def __init__(self,xx,yy):
+
+
+class Enemybullet:
+    def __init__(self, xx,yy):
         self.x=xx
         self.y=yy
-        self.frame=0
-        self.hp=30
-        self.sence=0
-        self.image = load_image('enemy.png')
+        self.speed=30
+        self.damage = 10
+        self.image = load_image('enemybullet.png')
     def draw(self):
-        self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
-    def update(self,xx,yy):
-        if self.sence==1:
-            self.frame=(self.frame+1)%2
-        else:
-            self.frame=0
+        self.image.clip_draw(0, 0, 16, 30, self.x, self.y)
+    def update(self):
+        if self.y>-100:
+            self.y=self.y-self.speed
     def get_bb(self):
-        return self.x-30,self.y-30,self.x+30,self.y+50
+        return self.x-8,self.y-15,self.x+8,self.y+15
+    def get_y(self):
+        return self.y
+    def get_damage(self):
+        return self.damage
 
-    def get_aa(self):
-        return self.x, self.y
 
-    def sence_hero(self,dd):
-        if dd==True:
-            self.sence=1
-        else:
-            self.sence=0
-
-    def HP_state(self,a):
-        self.hp=self.hp-a
-    def get_hp(self):
-        return self.hp
 
 
 
@@ -121,12 +116,12 @@ def enter():
     global mainhero,total_frametime
     global x_right,x_left,y_up,y_down #키의 상태값
     global bastion
-
+    global boss
     total_frametime=0
     mainhero=Luci(300,800)
 
     bastion.append(Enemy(300,900))
-
+    boss=Boss()
     x_right = x_left = y_up = y_down=False
 
 def exit():
@@ -136,7 +131,8 @@ def exit():
 def update(frame_time):
     global mainhero, baseatack
     global total_frametime
-    global bastion
+    global bastion,enemyatack
+    global boss
 
     total_frametime+= frame_time
 
@@ -151,12 +147,20 @@ def update(frame_time):
             baseatack[i].update()
             delatack=0
             for j in range(len(bastion)): # 충돌체크를 통해서 주인공의 평타와 바스티온을 비교하여 hp를 감소시킵니다.
-                if collide(bastion[j],baseatack[i]):
-                    print('a')
+                if collide(bastion[j],baseatack[i]) and delatack==0:
                     bastion[j].HP_state(baseatack[i].get_damage())
                     basei.append(i)
+                    delatack=1
+
+            if collide(boss, baseatack[i]) and delatack==0 and boss.get_hp()>0:
+                print('a')
+                boss.HP_state(baseatack[i].get_damage())
+                basei.append(i)
+                delatack = 1
+
             if 1000<baseatack[i].get_y() and delatack==0:
                 basei.append(i)
+                delatack = 1
 
 
         if len(basei)>0: #탄이 멀리 나갔을때 지운다.
@@ -170,32 +174,58 @@ def update(frame_time):
         for i in range(len(bastion)):
             if bastion[i].get_hp()<=0:
                 bastempi.append(i)
-        basetemp = 0
+        enemytemp = 0
         for i in range(len(bastempi)):
-            del bastion[(bastempi[i])-basetemp]
-            ++basetemp
+            del bastion[(bastempi[i])-enemytemp]
+            ++enemytemp
         #여기까지 바스티온의 제거
 
         for i in range(len(bastion)): #바스티온의 주인공 인식
             bastion[i].update(mainhero.get_x,mainhero.get_x)
             dota=bastion_sence(bastion[i] , mainhero)
             bastion[i].sence_hero(dota)
-        #입력받은 값으로 주인공의 위치 변경
+            if dota==True:
+                enemyatack.append(Enemybullet(bastion[i].get_x(), bastion[i].get_y() - 50))
+
+        #여기서 부터 바스티온 기본탄환
+        enemyi=[]
+        for i in range(len(enemyatack)):
+            delatack = 0
+            enemyatack[i].update()
+            if 200 > enemyatack[i].get_y() and delatack == 0:
+                enemyi.append(i)
+                delatack = 1
+        if len(enemyi)>0: #탄이 멀리 나갔을때 지운다.
+            Ebullettemp=0
+            for i in range(len(enemyi)):
+                del enemyatack[enemyi[i]-Ebullettemp]
+                ++Ebullettemp
+        #여기까지 바스티온 기본탄환
+
+
+        if boss.get_hp() > 0:
+            boss.update()
+
 
 
 def draw(frame_time):
     global mainhero, baseatack
-    global bastion
-
+    global bastion,enemyatack
+    global boss
     clear_canvas()
     mainhero.draw()
+
 
     for i in range(len(baseatack)):
         baseatack[i].draw()
 
+
     for i in range(len(bastion)):
         bastion[i].draw()
+    if boss.get_hp()>0: boss.draw()
 
+    for i in range(len(enemyatack)):
+        enemyatack[i].draw()
     update_canvas()
 
 def handle_events(frame_time):
