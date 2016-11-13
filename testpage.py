@@ -70,7 +70,7 @@ class bullet:                  #주인공 기본 탄환
         self.image = load_image('soundwave.png')
 
     def draw(self):
-        print('c')
+
         self.image.clip_draw(0, 0, 30, 30, self.x, self.y)
 
     def update(self):
@@ -109,11 +109,8 @@ class Enemy:                        #적1 바스티온 기관총
         else:
             self.sence=0
 
-    def Hp_state(self,damage):
-        self.hp-=damage
-        if self.hp<=0:
-            return True
-        return False
+    def HP_state(self,a):
+        self.hp=self.hp-a
     def get_hp(self):
         return self.hp
 
@@ -152,7 +149,13 @@ def update(frame_time):
         basei=[]#지워야할 탄을 저장함
         for i in range(len(baseatack)):
             baseatack[i].update()
-            if 1000<baseatack[i].get_y():
+            delatack=0
+            for j in range(len(bastion)): # 충돌체크를 통해서 주인공의 평타와 바스티온을 비교하여 hp를 감소시킵니다.
+                if collide(bastion[j],baseatack[i]):
+                    print('a')
+                    bastion[j].HP_state(baseatack[i].get_damage())
+                    basei.append(i)
+            if 1000<baseatack[i].get_y() and delatack==0:
                 basei.append(i)
 
 
@@ -162,17 +165,21 @@ def update(frame_time):
                 del baseatack[basei[i]-basetemp]
                 ++basetemp
 
-        basti = []
-        #for i in range(len(baseatack)):
-            #for j in range(len(bastion)):
-                #if collide(bastion[j], baseatack[i]):
-                    #del baseatack[i]
+
+        bastempi = [] #여기서 바스티온의 제거를 결정한다.
+        for i in range(len(bastion)):
+            if bastion[i].get_hp()<=0:
+                bastempi.append(i)
+        basetemp = 0
+        for i in range(len(bastempi)):
+            del bastion[(bastempi[i])-basetemp]
+            ++basetemp
+        #여기까지 바스티온의 제거
 
         for i in range(len(bastion)): #바스티온의 주인공 인식
             bastion[i].update(mainhero.get_x,mainhero.get_x)
             dota=bastion_sence(bastion[i] , mainhero)
             bastion[i].sence_hero(dota)
-
         #입력받은 값으로 주인공의 위치 변경
 
 
@@ -209,7 +216,7 @@ def handle_events(frame_time):
             elif event.key == SDLK_DOWN:
                 y_down = True
             if event.key == SDLK_SPACE:
-                baseatack.append(bullet(mainhero.get_x(),mainhero.get_y()))
+                baseatack.append(bullet(mainhero.get_x(),mainhero.get_y()+50))
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
                 x_right = False
