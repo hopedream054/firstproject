@@ -265,6 +265,8 @@ def collide(a,b):  #a:anemy b:tan
 
     if left_a>right_b: return False
     if right_a<left_b: return False
+
+
     if top_a< bottom_b: return False
     if bottom_a> top_b: return False
 
