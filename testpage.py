@@ -153,7 +153,6 @@ def update(frame_time):
                     delatack=1
 
             if collide(boss, baseatack[i]) and delatack==0 and boss.get_hp()>0:
-                print('a')
                 boss.HP_state(baseatack[i].get_damage())
                 basei.append(i)
                 delatack = 1
@@ -167,8 +166,7 @@ def update(frame_time):
             basetemp=0
             for i in range(len(basei)):
                 del baseatack[basei[i]-basetemp]
-                ++basetemp
-
+                basetemp+=1
 
         bastempi = [] #여기서 바스티온의 제거를 결정한다.
         for i in range(len(bastion)):
