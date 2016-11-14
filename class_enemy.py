@@ -11,9 +11,13 @@ class Enemy:                        #적1 바스티온 기관총
         self.hp=30
         self.sence=0
         self.image = load_image('enemy.png')
+        self.bulletcount=0
     def draw(self):
         self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
     def update(self,xx,yy):
+        if self.bulletcount>0:
+            self.bulletcount=(self.bulletcount+1)%20
+
         if self.sence==1:
             self.frame=(self.frame+1)%2
         else:
@@ -37,6 +41,12 @@ class Enemy:                        #적1 바스티온 기관총
         return self.x
     def get_y(self):
         return self.y
+    def get_bulletcount(self):
+        if self.bulletcount<12: return True #이것과 위의 불렛카운트를 이용하여 발사를 조절할수있음
+        else: return False
+    def up_bulletcount(self):
+        self.bulletcount =self.bulletcount+ 1
+
 
 class Enemybullet:
     image=None
@@ -54,6 +64,8 @@ class Enemybullet:
             self.y=self.y-self.speed
     def get_bb(self):
         return self.x-8,self.y-15,self.x+8,self.y+15
+
+
 
 
 

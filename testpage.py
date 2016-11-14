@@ -25,6 +25,7 @@ class Luci:                   #메인캐릭터
         self.x=xx
         self.y=yy
         self.speed=20
+        self.hp=500
 
         self.image=load_image('luci_character.png')
 
@@ -61,6 +62,10 @@ class Luci:                   #메인캐릭터
         return self.x
     def get_y(self):
         return self.y
+    def HP_state(self,a):
+        self.hp=self.hp-a
+    def get_hp(self):
+        return self.hp
 
 
 
@@ -143,7 +148,7 @@ def update(frame_time):
 
 
         basei=[]#지워야할 탄을 저장함
-        for i in range(len(baseatack)):
+        for i in range(len(baseatack)): # 주인공의 탄환 발사
             baseatack[i].update()
             delatack=0
             for j in range(len(bastion)): # 충돌체크를 통해서 주인공의 평타와 바스티온을 비교하여 hp를 감소시킵니다.
@@ -161,12 +166,12 @@ def update(frame_time):
                 basei.append(i)
                 delatack = 1
 
-
-        if len(basei)>0: #탄이 멀리 나갔을때 지운다.
+        if len(basei)>0: #주인공 탄이 멀리 나갔을때 지운다.
             basetemp=0
             for i in range(len(basei)):
                 del baseatack[basei[i]-basetemp]
                 basetemp+=1
+
 
         bastempi = [] #여기서 바스티온의 제거를 결정한다.
         for i in range(len(bastion)):
@@ -176,28 +181,34 @@ def update(frame_time):
         for i in range(len(bastempi)):
             del bastion[(bastempi[i])-enemytemp]
             ++enemytemp
-        #여기까지 바스티온의 제거
 
+        #여기까지 바스티온의 제거
         for i in range(len(bastion)): #바스티온의 주인공 인식
             bastion[i].update(mainhero.get_x,mainhero.get_x)
             dota=bastion_sence(bastion[i] , mainhero)
             bastion[i].sence_hero(dota)
-            if dota==True:
+            check=bastion[i].get_bulletcount()
+            if dota==True and check==True:
                 enemyatack.append(Enemybullet(bastion[i].get_x(), bastion[i].get_y() - 50))
+                bastion[i].up_bulletcount()
 
         #여기서 부터 바스티온 기본탄환
         enemyi=[]
         for i in range(len(enemyatack)):
-            delatack = 0
             enemyatack[i].update()
-            if 200 > enemyatack[i].get_y() and delatack == 0:
+            delatack = 0
+            if collide(mainhero, enemyatack[i]) and delatack == 0 and mainhero.get_hp() > 0: #주인공 피격 후 hp감소
+                mainhero.HP_state(enemyatack[i].get_damage())
+                enemyi.append(i)
+                delatack = 1
+            if -50 > enemyatack[i].get_y() and delatack == 0: #화면밖으로 나간 총알
                 enemyi.append(i)
                 delatack = 1
         if len(enemyi)>0: #탄이 멀리 나갔을때 지운다.
             Ebullettemp=0
             for i in range(len(enemyi)):
                 del enemyatack[enemyi[i]-Ebullettemp]
-                ++Ebullettemp
+                Ebullettemp=Ebullettemp+1
         #여기까지 바스티온 기본탄환
 
 
@@ -224,7 +235,10 @@ def draw(frame_time):
 
     for i in range(len(enemyatack)):
         enemyatack[i].draw()
+
     update_canvas()
+
+
 
 def handle_events(frame_time):
     global x_right, x_left, y_up, y_down
