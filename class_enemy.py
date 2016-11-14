@@ -1,5 +1,5 @@
 import game_framework
-
+import math
 from pico2d import*
 
 
@@ -80,25 +80,33 @@ class Boss:                        #보스
         self.y=800
         self.frame=0
         self.hp=400
-        self.gox=0
+        self.gox=-300
         self.goy=0
-        self.xspeed=0
+        self.xspeed=-30
         self.yspeed=0
         self.damage = 100
         self.image = load_image('boss.png')
+        self.pattern=0
+        self.tanframe = 0
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
     def update(self):
         self.frame=(self.frame+1)%3
+        self.tanframe = (self.tanframe + 1) % 10
+
         if self.gox:
-            if self.gox>0 and self.gox-self.xspeed<0:
-                self.x+=self.gox
+            if self.gox>0 and self.gox-self.xspeed<=0:
+                self.x+=self.xspeed
                 self.xspeed=0
                 self.gox=0
-            elif self.gox<0 and self.gox-self.xspeed>0:
-                self.x+=self.gox
+                self.gox=-300
+                self.xspeed = -30
+            elif self.gox<0 and self.gox-self.xspeed>=0:
+                self.x+=self.xspeed
                 self.xspeed=0
                 self.gox=0
+                self.gox = 300
+                self.xspeed = 30
             else:
                 self.x+=self.xspeed
                 self.gox -= self.xspeed
@@ -115,16 +123,56 @@ class Boss:                        #보스
             else:
                 self.y+=self.yspeed
                 self.goy -= self.yspeed
-
     def get_bb(self):
         return self.x-250,self.y-80,self.x+250,self.y+100
 
     def get_aa(self):
         return self.x, self.y
 
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
     def HP_state(self,a):
         self.hp=self.hp-a
     def get_hp(self):
         return self.hp
+    def get_damage(self):
+        return self.damage
+    def get_tanframe(self):
+        return self.tanframe
+
+class Bossbullet:
+    def __init__(self, xx,yy,tx,ty):
+        self.x=xx
+        self.y=yy
+        self.targetx = tx
+        self.targety = ty
+
+        print(xx)
+        print(yy)
+        tot=math.sqrt(tx * tx + ty * ty)
+        print(tot)
+        if tot<500: tot=500
+        if tot>750: tot=500
+        self.speedx= (tx-xx)/(tot/20)
+        self.speedy= (ty-yy)/(tot/20)
+
+        self.damage = 10
+        self.frame = 0
+        self.image = load_image('bosstan.png')
+    def draw(self):
+        self.image.clip_draw(self.frame*50, 0, 50, 50, self.x, self.y)
+    def update(self):
+        self.frame = (self.frame + 1) % 3
+        self.y=self.y+self.speedy
+        self.x = self.x + self.speedx
+    def get_bb(self):
+        return self.x-23,self.y-23,self.x+23,self.y+23
+    def get_y(self):
+        return self.y
+    def get_x(self):
+        return self.x
     def get_damage(self):
         return self.damage

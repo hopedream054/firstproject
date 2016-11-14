@@ -6,7 +6,7 @@ import os
 from pico2d import *
 import game_framework
 
-from class_enemy import Enemy,Enemybullet,Boss
+from class_enemy import Enemy,Enemybullet,Boss,Bossbullet
 
 
 mainhero=None
@@ -18,6 +18,7 @@ boss=None
 bastion=[]
 baseatack=[]
 enemyatack=[]
+bosstan=[]
 
 class Luci:                   #메인캐릭터
     def __init__(self,xx,yy):
@@ -44,7 +45,7 @@ class Luci:                   #메인캐릭터
 
         if x_right == True and self.x <= 760:
             self.x = self.x + self.speed
-        if x_left == True and self.x >= 140:
+        if x_left == True and self.x >= 40:
             self.x = self.x - self.speed
         if y_up == True and self.y < 960:
             self.y = self.y + self.speed
@@ -112,7 +113,7 @@ def enter():
     global bastion
     global boss
     total_frametime=0
-    mainhero=Luci(300,800)
+    mainhero=Luci(300,400)
 
     bastion.append(Enemy(100,500))
     boss=Boss()
@@ -202,10 +203,44 @@ def update(frame_time):
 
         if boss.get_hp() > 0:
             boss.update()
+            if boss.get_tanframe()==1:
 
-        for i in range(len(bastion)):
-            if collide(mainhero, bastion[i]):
-                mainhero.HP_state(bastion[i].get_damage())
+                bosstan.append(Bossbullet(boss.get_x()-100,boss.get_y(),mainhero.get_x(),mainhero.get_y()))
+
+            if boss.get_tanframe()==5:
+
+                bosstan.append(Bossbullet(boss.get_x()+100,boss.get_y(),mainhero.get_x(),mainhero.get_y()))
+
+            bossi=[]
+            for i in range(len(bosstan)):
+                bosstan[i].update()
+                delatack = 0
+
+                if collide(mainhero, bosstan[i]) and delatack == 0 and mainhero.get_hp() > 0:
+                    mainhero.HP_state(bosstan[i].get_damage())
+                    enemyi.append(i)
+                    delatack = 1
+                elif -50 > bosstan[i].get_y() and delatack == 0:  # 화면밖으로 나간 총알
+                    bossi.append(i)
+                    delatack = 1
+                elif 1000 < bosstan[i].get_y() and delatack == 0:
+                    bossi.append(i)
+                    delatack = 1
+                elif 800 < bosstan[i].get_x() and delatack == 0:
+                    bossi.append(i)
+                    delatack = 1
+                elif 0 > bosstan[i].get_x() and delatack == 0:
+                    bossi.append(i)
+                    delatack = 1
+
+            if len(bossi) > 0:  # 탄이 멀리 나갔을때 지운다.
+                Bbullettemp = 0
+                for i in range(len(bossi)):
+                    del bosstan[bossi[i] - Bbullettemp]
+                    Bbullettemp = Bbullettemp + 1
+
+
+
 
         if collide(mainhero, boss):
             mainhero.HP_state(boss.get_damage())
@@ -226,7 +261,10 @@ def draw(frame_time):
 
     for i in range(len(bastion)):
         bastion[i].draw()
-    if boss.get_hp()>0: boss.draw()
+    if boss.get_hp()>0:
+        boss.draw()
+        for i in range(len(bosstan)):
+            bosstan[i].draw()
 
     for i in range(len(enemyatack)):
         enemyatack[i].draw()
