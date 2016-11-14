@@ -10,6 +10,7 @@ class Enemy:                        #적1 바스티온 기관총
         self.frame=0
         self.hp=30
         self.sence=0
+        self.damage = 100
         self.image = load_image('enemy.png')
         self.bulletcount=0
     def draw(self):
@@ -46,24 +47,27 @@ class Enemy:                        #적1 바스티온 기관총
         else: return False
     def up_bulletcount(self):
         self.bulletcount =self.bulletcount+ 1
-
+    def get_damage(self):
+        return self.damage
 
 class Enemybullet:
-    image=None
-    def __init__(self, xx,yy,spe):
+    def __init__(self, xx,yy):
         self.x=xx
         self.y=yy
-        self.speed=spe
-        if Enemybullet.image==None:
-            Enemybullet.image = load_image('enemybullet.png')
+        self.speed=30
+        self.damage = 10
+        self.image = load_image('enemybullet.png')
     def draw(self):
-        if self.y < 800:
-            self.image.draw(self.x,self.y)
+        self.image.clip_draw(0, 0, 16, 30, self.x, self.y)
     def update(self):
         if self.y>-100:
             self.y=self.y-self.speed
     def get_bb(self):
         return self.x-8,self.y-15,self.x+8,self.y+15
+    def get_y(self):
+        return self.y
+    def get_damage(self):
+        return self.damage
 
 
 
@@ -80,6 +84,7 @@ class Boss:                        #보스
         self.goy=0
         self.xspeed=0
         self.yspeed=0
+        self.damage = 100
         self.image = load_image('boss.png')
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
@@ -121,3 +126,5 @@ class Boss:                        #보스
         self.hp=self.hp-a
     def get_hp(self):
         return self.hp
+    def get_damage(self):
+        return self.damage

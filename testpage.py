@@ -26,7 +26,7 @@ class Luci:                   #메인캐릭터
         self.y=yy
         self.speed=20
         self.hp=500
-
+        self.hit=0
         self.image=load_image('luci_character.png')
 
     def transxy(self,xx,yy):
@@ -37,6 +37,8 @@ class Luci:                   #메인캐릭터
     def update(self):
         global x_right, x_left, y_up, y_down
 
+        if self.hit>0:
+            self.hit=(self.hit+1)%10
 
         self.frame=(self.frame+1)%8
 
@@ -63,9 +65,13 @@ class Luci:                   #메인캐릭터
     def get_y(self):
         return self.y
     def HP_state(self,a):
-        self.hp=self.hp-a
+        if a>0 and self.hit==0:
+            self.hp = self.hp - a
+            self.hit=1
     def get_hp(self):
         return self.hp
+    def get_hit(self):
+        return self.hit
 
 
 
@@ -93,24 +99,7 @@ class bullet:                  #주인공 기본 탄환
 
 
 
-class Enemybullet:
-    def __init__(self, xx,yy):
-        self.x=xx
-        self.y=yy
-        self.speed=30
-        self.damage = 10
-        self.image = load_image('enemybullet.png')
-    def draw(self):
-        self.image.clip_draw(0, 0, 16, 30, self.x, self.y)
-    def update(self):
-        if self.y>-100:
-            self.y=self.y-self.speed
-    def get_bb(self):
-        return self.x-8,self.y-15,self.x+8,self.y+15
-    def get_y(self):
-        return self.y
-    def get_damage(self):
-        return self.damage
+
 
 
 
@@ -125,7 +114,7 @@ def enter():
     total_frametime=0
     mainhero=Luci(300,800)
 
-    bastion.append(Enemy(300,900))
+    bastion.append(Enemy(100,500))
     boss=Boss()
     x_right = x_left = y_up = y_down=False
 
@@ -211,10 +200,15 @@ def update(frame_time):
                 Ebullettemp=Ebullettemp+1
         #여기까지 바스티온 기본탄환
 
-
         if boss.get_hp() > 0:
             boss.update()
 
+        for i in range(len(bastion)):
+            if collide(mainhero, bastion[i]):
+                mainhero.HP_state(bastion[i].get_damage())
+
+        if collide(mainhero, boss):
+            mainhero.HP_state(boss.get_damage())
 
 
 def draw(frame_time):
@@ -222,7 +216,8 @@ def draw(frame_time):
     global bastion,enemyatack
     global boss
     clear_canvas()
-    mainhero.draw()
+    if mainhero.get_hp()>0 and mainhero.get_hit()%2==0:
+        mainhero.draw()
 
 
     for i in range(len(baseatack)):
