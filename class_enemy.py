@@ -94,35 +94,38 @@ class Boss:                        #보스
         self.frame=(self.frame+1)%3
         self.tanframe = (self.tanframe + 1) % 10
 
-        if self.gox:
-            if self.gox>0 and self.gox-self.xspeed<=0:
-                self.x+=self.xspeed
-                self.xspeed=0
-                self.gox=0
-                self.gox=-300
-                self.xspeed = -30
-            elif self.gox<0 and self.gox-self.xspeed>=0:
-                self.x+=self.xspeed
-                self.xspeed=0
-                self.gox=0
-                self.gox = 300
-                self.xspeed = 30
-            else:
-                self.x+=self.xspeed
-                self.gox -= self.xspeed
+        if self.pattern==0:
+            if self.gox:
+                if self.gox > 0 and self.gox - self.xspeed <= 0:
+                    self.x += self.xspeed
+                    self.xspeed = 0
+                    self.gox = 0
+                    print(self.x)
+                    self.gox = -(self.x - 250)
+                    self.xspeed = -30
+                elif self.gox < 0 and self.gox - self.xspeed >= 0:
+                    self.x += self.xspeed
+                    self.xspeed = 0
+                    self.gox = 0
+                    print(self.x)
+                    self.gox = (800 - self.x) - 250
+                    self.xspeed = 30
+                else:
+                    self.x += self.xspeed
+                    self.gox -= self.xspeed
 
-        if self.goy:
-            if self.goy>0 and self.goy-self.yspeed<0:
-                self.y+=self.goy
-                self.yspeed=0
-                self.goy=0
-            elif self.goy<0 and self.goy-self.yspeed>0:
-                self.y+=self.goy
-                self.yspeed=0
-                self.goy=0
-            else:
-                self.y+=self.yspeed
-                self.goy -= self.yspeed
+            if self.goy:
+                if self.goy > 0 and self.goy - self.yspeed < 0:
+                    self.y += self.goy
+                    self.yspeed = 0
+                    self.goy = 0
+                elif self.goy < 0 and self.goy - self.yspeed > 0:
+                    self.y += self.goy
+                    self.yspeed = 0
+                    self.goy = 0
+                else:
+                    self.y += self.yspeed
+                    self.goy -= self.yspeed
     def get_bb(self):
         return self.x-250,self.y-80,self.x+250,self.y+100
 
@@ -150,10 +153,7 @@ class Bossbullet:
         self.targetx = tx
         self.targety = ty
 
-        print(xx)
-        print(yy)
         tot=math.sqrt(tx * tx + ty * ty)
-        print(tot)
         if tot<500: tot=500
         if tot>750: tot=500
         self.speedx= (tx-xx)/(tot/20)
@@ -169,7 +169,7 @@ class Bossbullet:
         self.y=self.y+self.speedy
         self.x = self.x + self.speedx
     def get_bb(self):
-        return self.x-23,self.y-23,self.x+23,self.y+23
+        return self.x-25,self.y-25,self.x+25,self.y+25
     def get_y(self):
         return self.y
     def get_x(self):
