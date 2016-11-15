@@ -115,6 +115,10 @@ class bullet:                  #주인공 기본 탄환
 class Map:                 #지도
 
     def __init__(self):
+        self.bgm = load_music('wave.mp3')
+        self.bgm.set_volume(50)
+        self.bgm.repeat_play()
+
         self.xone=400
         self.yone=1000
         self.xtwo = 400
@@ -165,6 +169,9 @@ def update(frame_time):
     global bastion,enemyatack
     global boss
 
+
+
+
     total_frametime+= frame_time
 
 
@@ -174,10 +181,10 @@ def update(frame_time):
         worldy=worldy+ worldspeed
 
         if worldy:
-            if worldy%100==0 and worldy<2500:
+            if worldy%100==0 and worldy<6500:
                 for i in range(random.randint(1, 3)):
                     bastion.append(Enemy(random.randint(1, 7)*100, 1150))
-            elif worldy>4000 and worldy%900==0:
+            elif worldy>8500 and worldy%900==0:
                 for i in range(1,6):
                     bastion.append(Enemy(i * 130, boss.get_y()))
 
@@ -190,7 +197,7 @@ def update(frame_time):
                     bastion[j].HP_state(baseatack[i].get_damage())
                     basei.append(i)
                     delatack=1
-            if worldy>3000:
+            if worldy>7000:
                 if collide(boss, baseatack[i]) and delatack==0 and boss.get_hp()>0:
                     boss.HP_state(baseatack[i].get_damage())
                     basei.append(i)
@@ -252,7 +259,7 @@ def update(frame_time):
                 del enemyatack[enemyi[i]-Ebullettemp]
                 Ebullettemp=Ebullettemp+1
         #여기까지 바스티온 기본탄환
-        if worldy>3000:
+        if worldy>7000:
             if boss.get_hp() > 0:
                 boss.update()
                 if boss.get_tanframe() == 1:
@@ -312,7 +319,7 @@ def draw(frame_time):
     for i in range(len(bastion)):
         bastion[i].draw()
 
-    if worldy>3000:
+    if worldy>7000:
         if boss.get_hp() > 0:
             boss.draw()
             for i in range(len(bosstan)):
@@ -331,7 +338,7 @@ def draw(frame_time):
 
         for i in range(len(bastion)):
             bastion[i].draw_bb()
-        if worldy > 3000:
+        if worldy > 7000:
             if boss.get_hp() > 0:
                 boss.draw_bb()
                 for i in range(len(bosstan)):
@@ -393,6 +400,6 @@ def bastion_sence(aa,bb):
 
     if left_a>x : return False
     if right_a<x: return False
-    if bottom_a<y: return False
-
+    if bottom_a<y : return False
+    if bottom_a-y<200: return False
     return True
