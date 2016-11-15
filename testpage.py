@@ -20,6 +20,12 @@ baseatack=[]
 enemyatack=[]
 bosstan=[]
 
+redline=None
+wolrdy=None
+wolrdspeed=None
+
+map=None
+
 class Luci:                   #메인캐릭터
     def __init__(self,xx,yy):
         self.frame=random.randint(0, 8)
@@ -29,6 +35,8 @@ class Luci:                   #메인캐릭터
         self.hp=500
         self.hit=0
         self.image=load_image('luci_character.png')
+        self.fireimage = load_image('fire.png')
+        self.fireframe=0
 
     def transxy(self,xx,yy):
         self.x+=xx
@@ -42,6 +50,7 @@ class Luci:                   #메인캐릭터
             self.hit=(self.hit+1)%10
 
         self.frame=(self.frame+1)%8
+        self.fireframe=(self.fireframe+1)%6
 
         if x_right == True and self.x <= 760:
             self.x = self.x + self.speed
@@ -56,7 +65,7 @@ class Luci:                   #메인캐릭터
 
     def draw(self):
         self.image.clip_draw(self.frame * 80, 0, 80, 100, self.x, self.y)
-
+        self.fireimage.clip_draw(self.fireframe * 27, 0, 27, 27, self.x, self.y+20)
     def get_bb(self):
         return self.x-40,self.y-40,self.x+50,self.y+50
     def get_aa(self):
@@ -73,6 +82,8 @@ class Luci:                   #메인캐릭터
         return self.hp
     def get_hit(self):
         return self.hit
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
 
 
 
@@ -97,10 +108,34 @@ class bullet:                  #주인공 기본 탄환
         return self.y
     def get_damage(self):
         return self.damage
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
 
 
+class Map:                 #지도
 
+    def __init__(self):
+        self.xone=400
+        self.yone=1000
+        self.xtwo = 400
+        self.ytwo = 3000
+        self.speed=50
 
+        self.image = load_image('map.png')
+
+    def draw(self):
+        if self.yone<2000:
+            self.image.draw(self.xone, self.yone)
+        if self.ytwo< 2000:
+            self.image.draw(self.xtwo, self.ytwo)
+
+    def update(self):
+        self.yone=self.yone-self.speed
+        self.ytwo=self.ytwo-self.speed
+        if self.yone<=-1000:
+            self.yone=3000
+        if self.ytwo<=-1000:
+            self.ytwo=3000
 
 
 
@@ -108,23 +143,24 @@ class bullet:                  #주인공 기본 탄환
 
 
 def enter():
-    global mainhero,total_frametime
+    global mainhero,total_frametime,redline,worldy,worldspeed,map
     global x_right,x_left,y_up,y_down #키의 상태값
     global bastion
     global boss
     total_frametime=0
     mainhero=Luci(300,400)
-
-    bastion.append(Enemy(100,500))
+    worldy=0
+    worldspeed=10
     boss=Boss()
     x_right = x_left = y_up = y_down=False
-
+    redline = False
+    map=Map()
 def exit():
-    global mainhero
+    global mainhero,map
     del(mainhero)
 
 def update(frame_time):
-    global mainhero, baseatack
+    global mainhero, baseatack,worldy,worldspeed,map
     global total_frametime
     global bastion,enemyatack
     global boss
@@ -135,7 +171,15 @@ def update(frame_time):
     if total_frametime>0.1:
         total_frametime=0
         mainhero.update()
+        worldy=worldy+ worldspeed
 
+        if worldy:
+            if worldy%100==0 and worldy<2500:
+                for i in range(random.randint(1, 3)):
+                    bastion.append(Enemy(random.randint(1, 7)*100, 1150))
+            elif worldy>4000 and worldy%900==0:
+                for i in range(1,6):
+                    bastion.append(Enemy(i * 130, boss.get_y()))
 
         basei=[]#지워야할 탄을 저장함
         for i in range(len(baseatack)): # 주인공의 탄환 발사
@@ -146,11 +190,11 @@ def update(frame_time):
                     bastion[j].HP_state(baseatack[i].get_damage())
                     basei.append(i)
                     delatack=1
-
-            if collide(boss, baseatack[i]) and delatack==0 and boss.get_hp()>0:
-                boss.HP_state(baseatack[i].get_damage())
-                basei.append(i)
-                delatack = 1
+            if worldy>3000:
+                if collide(boss, baseatack[i]) and delatack==0 and boss.get_hp()>0:
+                    boss.HP_state(baseatack[i].get_damage())
+                    basei.append(i)
+                    delatack = 1
 
             if 1000<baseatack[i].get_y() and delatack==0:
                 basei.append(i)
@@ -165,14 +209,22 @@ def update(frame_time):
 
         bastempi = [] #여기서 바스티온의 제거를 결정한다.
         for i in range(len(bastion)):
-            if bastion[i].get_hp()<=0:
+            deadsine=0
+            if bastion[i].get_hp()<=0 and deadsine==0:
                 bastempi.append(i)
+                deadsine=1
+            if bastion[i].get_y()<-50 and deadsine==0:
+                print(bastion[i].get_y())
+                bastempi.append(i)
+                deadsine=1
+
         enemytemp = 0
         for i in range(len(bastempi)):
             del bastion[(bastempi[i])-enemytemp]
-            ++enemytemp
+            enemytemp=enemytemp+1
 
         #여기까지 바스티온의 제거
+
         for i in range(len(bastion)): #바스티온의 주인공 인식
             bastion[i].update(mainhero.get_x,mainhero.get_x)
             dota=bastion_sence(bastion[i] , mainhero)
@@ -200,57 +252,55 @@ def update(frame_time):
                 del enemyatack[enemyi[i]-Ebullettemp]
                 Ebullettemp=Ebullettemp+1
         #여기까지 바스티온 기본탄환
+        if worldy>3000:
+            if boss.get_hp() > 0:
+                boss.update()
+                if boss.get_tanframe() == 1:
+                    bosstan.append(Bossbullet(boss.get_x() - 100, boss.get_y(), mainhero.get_x(), mainhero.get_y()))
 
-        if boss.get_hp() > 0:
-            boss.update()
-            if boss.get_tanframe()==1:
+                if boss.get_tanframe() == 5:
+                    bosstan.append(Bossbullet(boss.get_x() + 100, boss.get_y(), mainhero.get_x(), mainhero.get_y()))
 
-                bosstan.append(Bossbullet(boss.get_x()-100,boss.get_y(),mainhero.get_x(),mainhero.get_y()))
+                bossi = []
+                for i in range(len(bosstan)):
+                    bosstan[i].update()
+                    delatack = 0
 
-            if boss.get_tanframe()==5:
+                    if collide(mainhero, bosstan[i]) and delatack == 0 and mainhero.get_hp() > 0:
+                        mainhero.HP_state(bosstan[i].get_damage())
+                        enemyi.append(i)
+                        delatack = 1
+                    elif -50 > bosstan[i].get_y() and delatack == 0:  # 화면밖으로 나간 총알
+                        bossi.append(i)
+                        delatack = 1
+                    elif 1000 < bosstan[i].get_y() and delatack == 0:
+                        bossi.append(i)
+                        delatack = 1
+                    elif 800 < bosstan[i].get_x() and delatack == 0:
+                        bossi.append(i)
+                        delatack = 1
+                    elif 0 > bosstan[i].get_x() and delatack == 0:
+                        bossi.append(i)
+                        delatack = 1
 
-                bosstan.append(Bossbullet(boss.get_x()+100,boss.get_y(),mainhero.get_x(),mainhero.get_y()))
+                if len(bossi) > 0:  # 탄이 멀리 나갔을때 지운다.
+                    Bbullettemp = 0
+                    for i in range(len(bossi)):
+                        del bosstan[bossi[i] - Bbullettemp]
+                        Bbullettemp = Bbullettemp + 1
 
-            bossi=[]
-            for i in range(len(bosstan)):
-                bosstan[i].update()
-                delatack = 0
-
-                if collide(mainhero, bosstan[i]) and delatack == 0 and mainhero.get_hp() > 0:
-                    mainhero.HP_state(bosstan[i].get_damage())
-                    enemyi.append(i)
-                    delatack = 1
-                elif -50 > bosstan[i].get_y() and delatack == 0:  # 화면밖으로 나간 총알
-                    bossi.append(i)
-                    delatack = 1
-                elif 1000 < bosstan[i].get_y() and delatack == 0:
-                    bossi.append(i)
-                    delatack = 1
-                elif 800 < bosstan[i].get_x() and delatack == 0:
-                    bossi.append(i)
-                    delatack = 1
-                elif 0 > bosstan[i].get_x() and delatack == 0:
-                    bossi.append(i)
-                    delatack = 1
-
-            if len(bossi) > 0:  # 탄이 멀리 나갔을때 지운다.
-                Bbullettemp = 0
-                for i in range(len(bossi)):
-                    del bosstan[bossi[i] - Bbullettemp]
-                    Bbullettemp = Bbullettemp + 1
-
-
-
-
-        if collide(mainhero, boss):
-            mainhero.HP_state(boss.get_damage())
+            if collide(mainhero, boss):
+                mainhero.HP_state(boss.get_damage())
+        map.update()
 
 
 def draw(frame_time):
-    global mainhero, baseatack
+    global mainhero, baseatack,redline,worldy
     global bastion,enemyatack
     global boss
     clear_canvas()
+
+    map.draw()
     if mainhero.get_hp()>0 and mainhero.get_hit()%2==0:
         mainhero.draw()
 
@@ -261,20 +311,41 @@ def draw(frame_time):
 
     for i in range(len(bastion)):
         bastion[i].draw()
-    if boss.get_hp()>0:
-        boss.draw()
-        for i in range(len(bosstan)):
-            bosstan[i].draw()
+
+    if worldy>3000:
+        if boss.get_hp() > 0:
+            boss.draw()
+            for i in range(len(bosstan)):
+                bosstan[i].draw()
 
     for i in range(len(enemyatack)):
         enemyatack[i].draw()
+
+
+    if redline:
+        if mainhero.get_hp() > 0 and mainhero.get_hit() % 2 == 0:
+            mainhero.draw_bb()
+
+        for i in range(len(baseatack)):
+            baseatack[i].draw_bb()
+
+        for i in range(len(bastion)):
+            bastion[i].draw_bb()
+        if worldy > 3000:
+            if boss.get_hp() > 0:
+                boss.draw_bb()
+                for i in range(len(bosstan)):
+                    bosstan[i].draw_bb()
+
+        for i in range(len(enemyatack)):
+            enemyatack[i].draw_bb()
 
     update_canvas()
 
 
 
 def handle_events(frame_time):
-    global x_right, x_left, y_up, y_down
+    global x_right, x_left, y_up, y_down,redline
     global mainhero,baseatack
     events = get_events()
 
@@ -292,6 +363,9 @@ def handle_events(frame_time):
                 y_down = True
             if event.key == SDLK_SPACE:
                 baseatack.append(bullet(mainhero.get_x(),mainhero.get_y()+50))
+            if event.key == SDLK_1:
+                if redline: redline=False
+                else:  redline=True
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
                 x_right = False

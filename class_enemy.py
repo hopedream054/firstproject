@@ -13,9 +13,12 @@ class Enemy:                        #적1 바스티온 기관총
         self.damage = 100
         self.image = load_image('enemy.png')
         self.bulletcount=0
+        self.worldspeed=10
     def draw(self):
         self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
     def update(self,xx,yy):
+        self.y=self.y-self.worldspeed
+
         if self.bulletcount>0:
             self.bulletcount=(self.bulletcount+1)%20
 
@@ -49,6 +52,8 @@ class Enemy:                        #적1 바스티온 기관총
         self.bulletcount =self.bulletcount+ 1
     def get_damage(self):
         return self.damage
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
 
 class Enemybullet:
     def __init__(self, xx,yy):
@@ -68,6 +73,8 @@ class Enemybullet:
         return self.y
     def get_damage(self):
         return self.damage
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
 
 
 
@@ -145,6 +152,9 @@ class Boss:                        #보스
         return self.damage
     def get_tanframe(self):
         return self.tanframe
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
 
 class Bossbullet:
     def __init__(self, xx,yy,tx,ty):
@@ -176,3 +186,5 @@ class Bossbullet:
         return self.x
     def get_damage(self):
         return self.damage
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())

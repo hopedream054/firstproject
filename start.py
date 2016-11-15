@@ -163,6 +163,7 @@ def update():
     global tanframe
     global hp
 
+
     frame = (frame + 1) % 3
 
     delay(0.05)
