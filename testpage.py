@@ -1,4 +1,4 @@
-import random
+﻿import random
 import json
 import os
 
@@ -26,7 +26,7 @@ wolrdspeed=None
 
 map=None
 
-class Luci:                   #메인캐릭터
+class Luci:                   #메인캐릭터 자
     def __init__(self,xx,yy):
         self.frame=random.randint(0, 8)
         self.x=xx
