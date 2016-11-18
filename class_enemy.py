@@ -81,6 +81,129 @@ class Enemybullet:
 
 
 
+class Enemy_second:                        #적1 바스티온 기관총
+    def __init__(self,xx,yy):
+        self.x=xx
+        self.y=yy
+        self.frame=0
+        self.hp=30
+        self.sence=0
+        self.damage = 100
+        self.image = load_image('enemy.png')
+        self.bulletcount=0
+        self.worldspeed=10
+    def draw(self):
+        self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
+    def update(self,xx,yy):
+        self.y=self.y-self.worldspeed
+
+        if self.bulletcount>0:
+            self.bulletcount=(self.bulletcount+1)%20
+
+        if self.sence==1:
+            self.frame=(self.frame+1)%2
+        else:
+            self.frame=0
+    def get_bb(self):
+        return self.x-30,self.y-30,self.x+30,self.y+50
+
+    def get_aa(self):
+        return self.x, self.y
+
+    def sence_hero(self,dd):
+        if dd==True:
+            self.sence=1
+        else:
+            self.sence=0
+    def HP_state(self,a):
+        self.hp=self.hp-a
+    def get_hp(self):
+        return self.hp
+    def get_x(self):
+        return self.x
+    def get_y(self):
+        return self.y
+    def get_bulletcount(self):
+        if self.bulletcount<12: return True #이것과 위의 불렛카운트를 이용하여 발사를 조절할수있음
+        else: return False
+    def up_bulletcount(self):
+        self.bulletcount =self.bulletcount+ 1
+    def get_damage(self):
+        return self.damage
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+
+class Enemy_third:                        #적1 바스티온 기관총
+    def __init__(self,xx,yy):
+        self.x=xx
+        self.y=yy
+        self.frame=0
+        self.hp=30
+        self.sence=0
+        self.damage = 100
+        self.image = load_image('enemy.png')
+        self.bulletcount=0
+        self.worldspeed=10
+    def draw(self):
+        self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
+    def update(self,xx,yy):
+        self.y=self.y-self.worldspeed
+
+        if self.bulletcount>0:
+            self.bulletcount=(self.bulletcount+1)%20
+
+        if self.sence==1:
+            self.frame=(self.frame+1)%2
+        else:
+            self.frame=0
+    def get_bb(self):
+        return self.x-30,self.y-30,self.x+30,self.y+50
+
+    def get_aa(self):
+        return self.x, self.y
+
+    def sence_hero(self,dd):
+        if dd==True:
+            self.sence=1
+        else:
+            self.sence=0
+    def HP_state(self,a):
+        self.hp=self.hp-a
+    def get_hp(self):
+        return self.hp
+    def get_x(self):
+        return self.x
+    def get_y(self):
+        return self.y
+    def get_bulletcount(self):
+        if self.bulletcount<12: return True #이것과 위의 불렛카운트를 이용하여 발사를 조절할수있음
+        else: return False
+    def up_bulletcount(self):
+        self.bulletcount =self.bulletcount+ 1
+    def get_damage(self):
+        return self.damage
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Boss:                        #보스
     def __init__(self):
         self.x=500

@@ -23,7 +23,6 @@ bosstan=[]
 redline=None
 wolrdy=None
 wolrdspeed=None
-
 map=None
 
 class Luci:                   #메인캐릭터 자
