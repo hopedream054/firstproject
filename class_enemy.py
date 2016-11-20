@@ -179,8 +179,6 @@ class Enemy_third:                        #적1 바스티온 기관총
     def get_bulletcount(self):
         if self.bulletcount<12: return True #이것과 위의 불렛카운트를 이용하여 발사를 조절할수있음
         else: return False
-    def up_bulletcount(self):
-        self.bulletcount =self.bulletcount+ 1
     def get_damage(self):
         return self.damage
     def draw_bb(self):
