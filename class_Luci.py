@@ -132,7 +132,7 @@ class bullet:                  #주인공 기본 탄환
     def __init__(self,xx,yy):
         self.x=xx
         self.y=yy
-        self.speed=30
+        self.speed=40
         self.damage=10
         self.image = load_image('soundwave.png')
 

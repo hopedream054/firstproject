@@ -10,7 +10,7 @@ import game_framework
 from class_enemy import Enemy,Enemybullet,Boss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
 from class_Luci import Luci,bullet
 from class_item import Item_Battery
-
+from class_sound import Sound
 mainhero=None
 total_frametime=None
 
@@ -34,15 +34,16 @@ blackimage=None
 
 class Map:                 #지도
     def __init__(self):
-        self.bgm = load_music('wave.mp3')
-        self.bgm.set_volume(50)
-        self.bgm.repeat_play()
+
+
+
+
 
         self.xone=400
         self.yone=1000
         self.xtwo = 400
         self.ytwo = 3000
-        self.speed=40
+        self.speed=10
 
         self.image = load_image('map_forest.png')
 
@@ -86,10 +87,12 @@ class worldclass:
         self.genji_atack=[]
         self.genji_shadow = []
 
+        self.stage=0
 
 
         blackimage= load_image('black.png')
         self. hitimage = load_image('hit_effect.png')
+        self.image_ending = load_image('endiing.png')
 
         self.battery = []
         self.battery.append(Item_Battery(500, 700))
@@ -100,7 +103,7 @@ class worldclass:
 
         self.heroatack=[]
         map = Map() #맵클래스 생성
-
+        self.sound=Sound()
     def draw(self,fram_time):
         global mainhero, redline, worldy
         global bastion, enemyatack
@@ -111,74 +114,73 @@ class worldclass:
 
 
 
-
-
-        for i in range(len(self.heroatack)):
-            self.heroatack[i].draw()
-
-        for i in range(len(bastion)):
-            bastion[i].draw()
-
-        for i in range(len(self.reinhardt)):
-            self.reinhardt[i].draw()
-
-        for i in range(len(self.genji)):
-            self.genji[i].draw()
-
-        if worldy > 7000: #보스전
-            if boss.hp > 0:
-                boss.draw()
-                for i in range(len(bosstan)):
-                    bosstan[i].draw()
-
-        for i in range(len(enemyatack)):
-            enemyatack[i].draw()
-
-        for i in range(len(self.genji_atack)):
-            self.genji_atack[i].draw()
-
-        for i in range(len(self.genji_shadow)):
-            self.genji_shadow[i].draw()
-
-        for i in range(len(self.battery)):
-            self.battery[i].draw()
-
-        for i in range(self.hitn):
-            self.hitimage.draw(self.hitx[i], self.hity[i])
-
-        blackimage.draw(775, 500)
-        mainhero.draw()
-
-
-
-        if redline:
-            if mainhero.hp > 0 and mainhero.get_hit() % 2 == 0:
-                mainhero.draw_bb()
-
+        if self.stage==0:
             for i in range(len(self.heroatack)):
-                self.heroatack[i].draw_bb()
+                self.heroatack[i].draw()
 
             for i in range(len(bastion)):
-                bastion[i].draw_bb()
+                bastion[i].draw()
 
             for i in range(len(self.reinhardt)):
-                self.reinhardt[i].draw_bb()
+                self.reinhardt[i].draw()
 
             for i in range(len(self.genji)):
-                self.genji[i].draw_bb()
-            for i in range(len(self.genji_shadow)):
-                self.genji_shadow[i].draw_bb()
-            if worldy > 7000:
+                self.genji[i].draw()
+
+            if worldy > 7000:  # 보스전
                 if boss.hp > 0:
-                    boss.draw_bb()
+                    boss.draw()
                     for i in range(len(bosstan)):
-                        bosstan[i].draw_bb()
+                        bosstan[i].draw()
 
             for i in range(len(enemyatack)):
-                enemyatack[i].draw_bb()
-            for i in range(len(self.genji_atack)):
-                self.genji_atack[i].draw_bb()
+                enemyatack[i].draw()
 
+            for i in range(len(self.genji_atack)):
+                self.genji_atack[i].draw()
+
+            for i in range(len(self.genji_shadow)):
+                self.genji_shadow[i].draw()
+
+            for i in range(len(self.battery)):
+                self.battery[i].draw()
+
+            for i in range(self.hitn):
+                self.hitimage.draw(self.hitx[i], self.hity[i])
+
+            blackimage.draw(775, 500)
+            mainhero.draw()
+
+            if redline:
+                if mainhero.hp > 0 and mainhero.get_hit() % 2 == 0:
+                    mainhero.draw_bb()
+
+                for i in range(len(self.heroatack)):
+                    self.heroatack[i].draw_bb()
+
+                for i in range(len(bastion)):
+                    bastion[i].draw_bb()
+
+                for i in range(len(self.reinhardt)):
+                    self.reinhardt[i].draw_bb()
+
+                for i in range(len(self.genji)):
+                    self.genji[i].draw_bb()
+                for i in range(len(self.genji_shadow)):
+                    self.genji_shadow[i].draw_bb()
+                if worldy > 7000:
+                    if boss.hp > 0:
+                        boss.draw_bb()
+                        for i in range(len(bosstan)):
+                            bosstan[i].draw_bb()
+
+                for i in range(len(enemyatack)):
+                    enemyatack[i].draw_bb()
+                for i in range(len(self.genji_atack)):
+                    self.genji_atack[i].draw_bb()
+
+        elif self.stage == 1:
+            self.image_ending.draw(400, 500)
 
 
         update_canvas()
@@ -192,7 +194,9 @@ class worldclass:
 
         total_frametime += frame_time
 
-        if total_frametime > 0.1:
+        if boss.hp<=0:
+            self.stage=1
+        elif total_frametime > 0.05:
             total_frametime = 0
             mainhero.update(x_right, x_left, y_up, y_down)
 
@@ -264,7 +268,8 @@ class worldclass:
                         del_heroatack.append(i)
 
                         touching_heroatack = 1
-
+                if touching_heroatack==1:
+                    self.sound.hero_atacksound.play()
 
 
 
@@ -295,6 +300,7 @@ class worldclass:
                 deadsine = 0
                 if bastion[i].hp <= 0 and deadsine == 0:
                     del_bastion.append(i)
+                    self.sound.bastion_dead.play()
                     deadsine = 1
                 if bastion[i].y < -50 and deadsine == 0:
                     print(bastion[i].y)
@@ -319,6 +325,7 @@ class worldclass:
                     print('50')
                     del_reinhardt.append(i)
                     deadsine = 1
+                    self.sound.reinhartd_dead.play()
                 if self.reinhardt[i].y < -120 and deadsine == 0:
                     print('55')
                     del_reinhardt.append(i)
@@ -339,6 +346,7 @@ class worldclass:
                     print('50')
                     del_genji.append(i)
                     deadsine = 1
+                    self.sound.genji_dead.play()
                 elif self.genji[i].y < -120 and deadsine == 0:
                     del_genji.append(i)
                     deadsine = 1
@@ -464,16 +472,17 @@ class worldclass:
             #업데이트완료
 
 
-            enemyi = []
+            enemyi = []#아이템 업데이트
             for i in range(len(self.battery)):
                 self.battery[i].update(worldspeed)
                 delatack = 0
 
-                if self.collide(mainhero, self.battery[i]) and delatack == 0 and mainhero.boost_charge != 100:  # 주인공 피격 후 hp감소
+                if self.collide(mainhero, self.battery[i]) and delatack == 0 and mainhero.boost_charge != 100:  #
                     mainhero.boost_charge=0
                     enemyi.append(i)
+                    self.sound.item_get.play()
                     delatack = 1
-                if self.battery[i].rotation==3 and delatack == 0:  # 화면밖으로 나간 총알
+                if self.battery[i].rotation==3 and delatack == 0:  #
                     enemyi.append(i)
                     delatack = 1
             if len(enemyi) > 0: #제거한다
@@ -482,14 +491,17 @@ class worldclass:
                     print('10')
                     del self.battery[enemyi[i] - Ebullettemp]
                     Ebullettemp = Ebullettemp + 1
+            #업데이트 완료
 
             if worldy > 7000: #보스등장
                 if boss.hp > 0:
                     boss.update()
                     if boss.get_tanframe() == 1:
+                        self.sound.bastion_dead.play()
                         bosstan.append(Bossbullet(boss.x - 100, boss.y, mainhero.x, mainhero.y))
 
                     if boss.get_tanframe() == 5:
+                        self.sound.bastion_dead.play()
                         bosstan.append(Bossbullet(boss.x + 100, boss.y, mainhero.x, mainhero.y))
 
                     bossi = []
