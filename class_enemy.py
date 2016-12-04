@@ -1,5 +1,6 @@
 import game_framework
 import math
+import random
 from pico2d import*
 
 
@@ -193,50 +194,90 @@ class reinhartd_fire:                        #적2 라인하르트
 
 
 
-class Enemy_third:                        #적1 바스티온 기관총
+class Enemy_third:                        #적3 겐지
     def __init__(self,xx,yy):
         self.x=xx
         self.y=yy
         self.frame=0
         self.hp=30
         self.sence=0
+        self.atacktime=0
         self.damage = 100
-        self.image = load_image('enemy.png')
-        self.bulletcount=0
-    def draw(self):
-        self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
-    def update(self,worldspeed,xx,yy):
-        self.y=self.y-worldspeed
-
-        if self.bulletcount>0:
-            self.bulletcount=(self.bulletcount+1)%20
-
-        if self.sence==1:
-            self.frame=(self.frame+1)%2
+        self.speed_x=15
+        self.speed_y=0
+        if yy>350:
+            self.dir = -1
         else:
-            self.frame=0
+            self.dir = 1
+
+        self.state=1 #상태  1번 대기 2번 그림자소환
+
+        self.shild_hp=40
+
+        self.image = load_image('genji.png')
+
+    def draw(self):
+        self.image.clip_draw(0, 0, 100, 100, self.x, self.y)
+    def update(self,worldspeed):
+        self.y = self.y - worldspeed-self.speed_y
+        self.x = self.x + self.dir * self.speed_x
+
+        if self.state==1:
+            if self.frame==19:
+                self.state=2
+                self.dir=random.randint(-1, 1)
+                self.speed_x = 15
+                self.speed_y = 30
+
+            self.frame=(self.frame+1)%20
+
+        elif self.state == 2:
+            if self.frame==9:
+                self.state=1
+                self.speed_x = 15
+                self.speed_y = 0
+                if self.x > 350:
+                    self.dir = -1
+                else:
+                    self.dir = 1
+
+
+
+            self.frame=(self.frame+1)%10
     def get_bb(self):
-        return self.x-30,self.y-30,self.x+30,self.y+50
+        return self.x-50,self.y-50,self.x+50,self.y+50
 
     def get_aa(self):
         return self.x, self.y
 
-    def sence_hero(self,dd):
-        if dd==True:
-            self.sence=1
-        else:
-            self.sence=0
-    def HP_state(self,a):
-        self.hp=self.hp-a
-    def get_hp(self):
-        return self.hp
-    def get_x(self):
-        return self.x
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+
+
+class Genji_shot:
+    def __init__(self, xx,yy,dirspeed):
+        self.x=xx
+        self.y=yy
+        self.speedy=20
+        self.speedx=dirspeed
+        self.frame=0
+        self.damage = 10
+        self.image = load_image('genji_atack.png')
+
+    def draw(self):
+        self.image.clip_draw(self.frame*40, 0, 40, 40, self.x, self.y)
+
+    def update(self,worldspeed):
+        self.frame=(self.frame+1)%3
+        if self.y>-100:
+            self.y=self.y-self.speedy-worldspeed
+            self.x = self.x - self.speedx
+
+    def get_bb(self):
+        return self.x-15,self.y-15,self.x+15,self.y+15
     def get_y(self):
         return self.y
-    def get_bulletcount(self):
-        if self.bulletcount<12: return True #이것과 위의 불렛카운트를 이용하여 발사를 조절할수있음
-        else: return False
     def get_damage(self):
         return self.damage
     def draw_bb(self):
@@ -244,8 +285,25 @@ class Enemy_third:                        #적1 바스티온 기관총
 
 
 
+class Genji_shadow:
+    def __init__(self, xx,yy,num):
+        self.x=xx
+        self.y=yy
+        self.frame=0
+        self.damage = 100
+        self.image = load_image('genji_shadow.png')
+        self.number=num%4
+    def draw(self):
+        self.image.clip_draw(self.number*100, 0, 100, 100, self.x, self.y)
 
+    def update(self,worldspeed):
+        self.y = self.y- worldspeed/2
+        self.frame=self.frame+1
 
+    def get_bb(self):
+        return self.x-50,self.y-50,self.x+50,self.y+50
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
 
 
 
@@ -367,3 +425,4 @@ class Bossbullet:
         return self.damage
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
+
