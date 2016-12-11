@@ -597,7 +597,7 @@ class worldclass:
         if top_a < bottom_b: return False
         if bottom_a > top_b: return False
 
-        return True
+        return True#충돌
 
     def collide_fire(self,b,xx,yy):  # 불꽃파티클 충돌체크
         left_a=xx-50
