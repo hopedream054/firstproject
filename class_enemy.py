@@ -373,7 +373,7 @@ class Boss:                        #보스
     def get_bb(self):
         return self.x-250,self.y-80,self.x+250,self.y+100
 
-    def get_aa(self):
+    def get_aa(self):##
         return self.x, self.y
 
     def get_x(self):
