@@ -319,7 +319,7 @@ class Genji_shadow:
 
 
 class Boss:                        #보스
-    def __init__(self):
+    def __init__(self): #보스 수정중
         self.x=500
         self.y=800
         self.frame=0
