@@ -129,7 +129,7 @@ class Luci:                   #메인캐릭터 자
 
 class bullet:                  #주인공 기본 탄환
 
-    def __init__(self,xx,yy):##
+    def __init__(self,xx,yy):## 수정 및 폭탄
         self.x=xx
         self.y=yy
         self.speed=40
