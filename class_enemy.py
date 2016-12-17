@@ -1,4 +1,4 @@
-import game_framework
+﻿import game_framework
 import math
 import random
 from pico2d import*
@@ -393,7 +393,7 @@ class Boss:                        #보스
         draw_rectangle(*self.get_bb())
 
 
-class Bossbullet:
+class Bossbullet: #
     def __init__(self, xx,yy,tx,ty):
         self.x=xx
         self.y=yy
