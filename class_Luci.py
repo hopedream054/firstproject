@@ -37,11 +37,11 @@ class Luci:                   #메인캐릭터 자
         self.y+=yy
 
 
-    def update(self,x_right, x_left, y_up, y_down):
+    def update(self,nowframe,x_right, x_left, y_up, y_down):
         if self.hit>0:
-            self.hit=(self.hit+1)%10
-        self.frame=(self.frame+1)%8
-        self.fireframe=(self.fireframe+1)%6
+            self.hit=(self.hit+int(nowframe))%10
+        self.frame=(self.frame+int(nowframe))%8
+        self.fireframe=(self.fireframe+int(nowframe))%6
 
         if self.boost_charge>0:
             self.boost_charge=(self.boost_charge+1)
@@ -64,18 +64,18 @@ class Luci:                   #메인캐릭터 자
 
 
         if self.boostspeed_count>0:
-            self.boostspeed_count=self.boostspeed_count+1
+            self.boostspeed_count=self.boostspeed_count+int(nowframe)
 
 
 
-        if x_right == True and self.x <= 760:
-            self.x = self.x + (self.speed+self.boostspeed)
+        if x_right == True and self.x <= 710:
+            self.x = self.x + (self.speed+self.boostspeed)*nowframe
         if x_left == True and self.x >= 40:
-            self.x = self.x - (self.speed+self.boostspeed)
+            self.x = self.x - (self.speed+self.boostspeed)*nowframe
         if y_up == True and self.y < 960:
-            self.y = self.y + (self.speed+self.boostspeed)
+            self.y = self.y + (self.speed+self.boostspeed)*nowframe
         elif y_down == True and self.y > 40:
-            self.y = self.y - (self.speed+self.boostspeed)
+            self.y = self.y - (self.speed+self.boostspeed)*nowframe
 
 
 
@@ -108,7 +108,7 @@ class Luci:                   #메인캐릭터 자
             self.mpimage.clip_draw(0, 0, 50, 200, 775, 400)
 
     def get_bb(self):
-        return self.x-30,self.y-50,self.x+30,self.y+50
+        return self.x-20,self.y-30,self.x+20,self.y+30
     def get_aa(self):
         return self.x, self.y
     def get_x(self):
@@ -141,8 +141,8 @@ class bullet:                  #주인공 기본 탄환
 
         self.image.clip_draw(0, 0, 30, 30, self.x, self.y)
 
-    def update(self):
-        self.y=self.y+self.speed
+    def update(self,nowframe):
+        self.y=self.y+self.speed*nowframe
     def get_bb(self):
         return self.x-15,self.y-15,self.x+15,self.y+15
     def get_y(self):

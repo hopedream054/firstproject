@@ -1,7 +1,7 @@
 import random
 import json
 import os
-
+import worldtwo
 
 from pico2d import *
 
@@ -18,13 +18,12 @@ x_right=x_left=y_up=y_down=None
 
 boss=None
 
-bastion=[]
+
 enemyatack=[]
 bosstan=[]
 
 redline=None
 wolrdy=None
-wolrdspeed=None
 map=None
 
 blackimage=None
@@ -53,7 +52,7 @@ class Map:                 #지도
         if self.ytwo< 2000:
             self.image.draw(self.xtwo, self.ytwo)
 
-    def update(self,worldspeed):
+    def update(self,nowframe,worldspeed):
         self.yone=self.yone-self.speed-worldspeed
         self.ytwo=self.ytwo-self.speed-worldspeed
         if self.yone<=-1000:
@@ -70,7 +69,11 @@ class worldclass:
         global bastion
         global boss,blackimage
 
+        self.bgm = load_music('stageonebgm.mp3')
+        self.bgm.set_volume(49)
+        self.bgm.repeat_play()
 
+        bastion = []
         total_frametime = 0
         mainhero = Luci(300, 400)
         worldy = 0
@@ -78,7 +81,7 @@ class worldclass:
         boss = Boss()
         x_right = x_left = y_up = y_down = False #키입력
         redline = False
-
+        self.restart=0
         self.reinhardt=[]#라인하르트 초기화
         self.reinhardt.append(Enemy_second(200,700))
 
@@ -88,12 +91,12 @@ class worldclass:
         self.genji_shadow = []
 
         self.stage=0
-
+        self.war=0
 
         blackimage= load_image('black.png')
         self. hitimage = load_image('hit_effect.png')
         self.image_ending = load_image('endiing.png')
-
+        self.warningimage=load_image('warning.png')
         self.battery = []
         self.battery.append(Item_Battery(500, 700))
 
@@ -104,6 +107,9 @@ class worldclass:
         self.heroatack=[]
         map = Map() #맵클래스 생성
         self.sound=Sound()
+        wolrdy=0
+        bosstan = []
+
     def draw(self,fram_time):
         global mainhero, redline, worldy
         global bastion, enemyatack
@@ -114,7 +120,7 @@ class worldclass:
 
 
 
-        if self.stage==0:
+        if self.stage==0 and mainhero.hp>0:
             for i in range(len(self.heroatack)):
                 self.heroatack[i].draw()
 
@@ -127,7 +133,10 @@ class worldclass:
             for i in range(len(self.genji)):
                 self.genji[i].draw()
 
-            if worldy > 7000:  # 보스전
+            if worldy>7800 and worldy <8400:
+
+                self.warningimage.clip_draw(0, 0, 800, 300, 400, 700)
+            elif worldy > 8500:  # 보스전
                 if boss.hp > 0:
                     boss.draw()
                     for i in range(len(bosstan)):
@@ -168,7 +177,7 @@ class worldclass:
                     self.genji[i].draw_bb()
                 for i in range(len(self.genji_shadow)):
                     self.genji_shadow[i].draw_bb()
-                if worldy > 7000:
+                if worldy > 8500:
                     if boss.hp > 0:
                         boss.draw_bb()
                         for i in range(len(bosstan)):
@@ -178,7 +187,6 @@ class worldclass:
                     enemyatack[i].draw_bb()
                 for i in range(len(self.genji_atack)):
                     self.genji_atack[i].draw_bb()
-
         elif self.stage == 1:
             self.image_ending.draw(400, 500)
 
@@ -194,11 +202,19 @@ class worldclass:
 
         total_frametime += frame_time
 
+
+
+
         if boss.hp<=0:
             self.stage=1
+        elif mainhero.hp <= 0:
+            self.restart=1
+            for i in range(len(bastion)):
+                del bastion[0]
         elif total_frametime > 0.05:
+            nowframe=total_frametime*20
             total_frametime = 0
-            mainhero.update(x_right, x_left, y_up, y_down)
+            mainhero.update(nowframe,x_right, x_left, y_up, y_down)
 
             worldy = worldy + worldspeed
 
@@ -211,17 +227,19 @@ class worldclass:
             self.hitn=0
 
             if worldy:  #여기가 생산라인
-                if worldy % 200 == 0 and worldy < 5500:
+                if worldy % 300 == 0 and worldy < 7000:
                     for i in range(random.randint(1, 2)):
-                        randtemp=random.randint(1, 1)
-                        if randtemp==1  :
+                        randtemp=random.randint(0, 5)
+                        if randtemp>0 and   randtemp<4:
                             bastion.append(Enemy(random.randint(1, 7) * 100, 1050))
-                        elif randtemp==2 :
+                        elif randtemp==4 :
                             self.reinhardt.append(Enemy_second(random.randint(1, 6) * 120, 1060))
-                        elif randtemp==3 :
-                            self.genji.append(Enemy_third(random.randint(1, 6) * 100, 1050))
-
-                elif worldy > 8500 and worldy % 900 == 0:
+                        elif randtemp==5 :
+                            self.genji.append(Enemy_third(random.randint(3, 6) * 100, 1050))
+                elif worldy>7800 and self.war==0:
+                    self.sound.warningsound.play()
+                    self.war=1
+                elif worldy > 10500 and worldy % 900 == 0:
                     for i in range(1, 6):
                         bastion.append(Enemy(i * 130, boss.y))
 
@@ -230,7 +248,7 @@ class worldclass:
             del_heroatack = []  # 지워야할 탄을 저장함
 
             for i in range(len(self.heroatack)):  # 주인공의 탄환 발사
-                self.heroatack[i].update()
+                self.heroatack[i].update(nowframe)
 
                 touching_heroatack = 0 #touching_heroatack는 탄이 접촉을 했는지 체크한다. 터치했을경우 값을 가지게 된다.
 
@@ -273,7 +291,7 @@ class worldclass:
 
 
 
-                if worldy > 7000: #보스전 돌입을 말한다. 나중에 추가로 해준다.
+                if worldy > 8500: #보스전 돌입을 말한다. 나중에 추가로 해준다.
                     if self.collide(boss, self.heroatack[i]) and touching_heroatack == 0 and boss.hp > 0:
                         boss.HP_state(self.heroatack[i].get_damage())
                         self.hitx.append(self.heroatack[i].x)
@@ -367,7 +385,7 @@ class worldclass:
 #1111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 
             for i in range(len(bastion)):  # 바스티온 업데이트 및 주인공 인식
-                bastion[i].update(worldspeed/2)
+                bastion[i].update(nowframe,worldspeed/2)
                 sencecheck = bastion[i].bastion_sence(mainhero)
                 bastion[i].sence_hero(sencecheck)
                 check = bastion[i].get_bulletcount()
@@ -379,7 +397,7 @@ class worldclass:
             #바스티온 기본탄환 업데이트
             enemyi = []
             for i in range(len(enemyatack)):
-                enemyatack[i].update(worldspeed)
+                enemyatack[i].update(nowframe,worldspeed)
                 delatack = 0
 
                 if self.collide(mainhero, enemyatack[i]) and delatack == 0 and mainhero.hp > 0:  # 주인공 피격 후 hp감소
@@ -399,7 +417,7 @@ class worldclass:
 
             #라인하르트 업데이트
             for i in range(len(self.reinhardt)):
-                self.reinhardt[i].update(worldspeed/2)
+                self.reinhardt[i].update(nowframe,worldspeed/2)
                 sencecheck = self.reinhardt[i].reinhardt_sence(mainhero)
                 if sencecheck == True and self.reinhardt[i].atacktime==0:
                     self.reinhardt[i].state=2
@@ -420,7 +438,7 @@ class worldclass:
 
             #겐지 업데이트
             for i in range(len(self.genji)):  # 바스티온 업데이트 및 주인공 인식
-                self.genji[i].update(worldspeed/2)
+                self.genji[i].update(nowframe,worldspeed/2)
                 if self.genji[i].frame%5==0 and self.genji[i].state==1:
                     self.genji_atack.append(Genji_shot( self.genji[i].x,  self.genji[i].y - 50,0))
                     self.genji_atack.append(Genji_shot( self.genji[i].x,  self.genji[i].y - 50,10))
@@ -433,7 +451,7 @@ class worldclass:
             enemyi = []
 
             for i in range(len(self.genji_atack)):
-                self.genji_atack[i].update(worldspeed)
+                self.genji_atack[i].update(nowframe,worldspeed)
                 delatack = 0
 
                 if self.collide(mainhero, self.genji_atack[i]) and delatack == 0 and mainhero.hp > 0:  # 주인공 피격 후 hp감소
@@ -453,7 +471,7 @@ class worldclass:
             enemyi = []
             # 겐지의 그림자 분신 업데이트
             for i in range(len(self.genji_shadow)):
-                self.genji_shadow[i].update(worldspeed)
+                self.genji_shadow[i].update(nowframe,worldspeed)
                 delatack = 0
 
                 if self.collide(mainhero, self.genji_shadow[i]) and delatack == 0 and mainhero.hp > 0:  # 주인공 피격 후 hp감소
@@ -474,7 +492,7 @@ class worldclass:
 
             enemyi = []#아이템 업데이트
             for i in range(len(self.battery)):
-                self.battery[i].update(worldspeed)
+                self.battery[i].update(nowframe,worldspeed)
                 delatack = 0
 
                 if self.collide(mainhero, self.battery[i]) and delatack == 0 and mainhero.boost_charge != 100:  #
@@ -493,9 +511,9 @@ class worldclass:
                     Ebullettemp = Ebullettemp + 1
             #업데이트 완료
 
-            if worldy > 7000: #보스등장
+            if worldy > 8500: #보스등장
                 if boss.hp > 0:
-                    boss.update()
+                    boss.update(nowframe)
                     if boss.get_tanframe() == 1:
                         self.sound.bastion_dead.play()
                         bosstan.append(Bossbullet(boss.x - 100, boss.y, mainhero.x, mainhero.y))
@@ -506,7 +524,7 @@ class worldclass:
 
                     bossi = []
                     for i in range(len(bosstan)):
-                        bosstan[i].update()
+                        bosstan[i].update(nowframe)
                         delatack = 0
 
                         if self.collide(mainhero, bosstan[i]) and delatack == 0 and mainhero.hp > 0:
@@ -537,7 +555,7 @@ class worldclass:
                     mainhero.HP_state(boss.get_damage())
 
 
-            map.update(worldspeed)
+            map.update(nowframe,worldspeed)
 
     def handle_events(self,frame_time):
         global x_right, x_left, y_up, y_down, redline
@@ -612,4 +630,3 @@ class worldclass:
         if bottom_a > top_b: return False
 
         return True
-

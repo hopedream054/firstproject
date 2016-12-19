@@ -17,14 +17,14 @@ class Enemy:                        #적1 바스티온 기관총
 
     def draw(self):
         self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
-    def update(self,worldspeed):
-        self.y=self.y-worldspeed
+    def update(self,nowframe,worldspeed):
+        self.y=self.y-worldspeed*nowframe
 
         if self.bulletcount>0:
-            self.bulletcount=(self.bulletcount+1)%20
+            self.bulletcount=(self.bulletcount+int(nowframe))%20
 
         if self.sence==1:
-            self.frame=(self.frame+1)%2
+            self.frame=(self.frame+int(nowframe))%2
         else:
             self.frame=0
     def get_bb(self):
@@ -70,13 +70,13 @@ class Enemybullet:
         self.x=xx
         self.y=yy
         self.speed=20
-        self.damage = 10
+        self.damage = 30
         self.image = load_image('enemybullet.png')
     def draw(self):
         self.image.clip_draw(0, 0, 16, 30, self.x, self.y)
-    def update(self,worldspeed):
+    def update(self,nowframe,worldspeed):
         if self.y>-100:
-            self.y=self.y-self.speed-worldspeed
+            self.y=self.y+(-self.speed-worldspeed)*nowframe
     def get_bb(self):
         return self.x-8,self.y-15,self.x+8,self.y+15
     def get_y(self):
@@ -125,15 +125,14 @@ class Enemy_second:                        #적2 라인하르트
             self.image_guard.clip_draw(0, 0, 120, 180, self.x, self.y)
             if self.shild_hp>0: self.image_shild.clip_draw(0, 0, 240, 200, self.x, self.y)
 
-    def update(self,worldspeed):
-        self.y=self.y-worldspeed
+    def update(self,nowframe,worldspeed):
+        self.y=self.y-worldspeed*nowframe
 
-        self.frame=self.frame+1
+        self.frame=self.frame+int(nowframe)
 
         if self.state==2:
             self.atacktime=self.atacktime+1
             if self.atacktime>=20:
-                print('zxasqw')
                 self.atacktime=0
                 self.state=1
         elif self.state!=2 and self.frame>=40:
@@ -183,8 +182,8 @@ class reinhartd_fire:                        #적2 라인하르트
     def draw(self):
         self.image_fire.clip_draw(self.frame*100, 0, 100, 100, self.x, self.y-100)
 
-    def update(self,worldspeed):
-        self.frame=(self.frame+1)%5
+    def update(self,nowframe,worldspeed):
+        self.frame=(self.frame+int(nowframe))%5
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
@@ -218,9 +217,9 @@ class Enemy_third:                        #적3 겐지
 
     def draw(self):
         self.image.clip_draw(0, 0, 100, 100, self.x, self.y)
-    def update(self,worldspeed):
-        self.y = self.y - worldspeed-self.speed_y
-        self.x = self.x + self.dir * self.speed_x
+    def update(self,nowframe,worldspeed):
+        self.y = self.y+( - worldspeed-self.speed_y)*nowframe
+        self.x = self.x + self.dir * self.speed_x*nowframe
 
         if self.state==1:
             if self.frame==19:
@@ -229,7 +228,7 @@ class Enemy_third:                        #적3 겐지
                 self.speed_x = 15
                 self.speed_y = 30
 
-            self.frame=(self.frame+1)%20
+            self.frame=(self.frame+int(nowframe))%20
 
         elif self.state == 2:
             if self.frame==9:
@@ -243,7 +242,7 @@ class Enemy_third:                        #적3 겐지
 
 
 
-            self.frame=(self.frame+1)%10
+            self.frame=(self.frame+int(nowframe))%10
     def get_bb(self):
         return self.x-50,self.y-50,self.x+50,self.y+50
 
@@ -262,17 +261,17 @@ class Genji_shot:
         self.speedy=20
         self.speedx=dirspeed
         self.frame=0
-        self.damage = 10
+        self.damage = 40
         self.image = load_image('genji_atack.png')
 
     def draw(self):
         self.image.clip_draw(self.frame*40, 0, 40, 40, self.x, self.y)
 
-    def update(self,worldspeed):
-        self.frame=(self.frame+1)%3
+    def update(self,nowframe,worldspeed):
+        self.frame=(self.frame+int(nowframe))%3
         if self.y>-100:
-            self.y=self.y-self.speedy-worldspeed
-            self.x = self.x - self.speedx
+            self.y=self.y+(-self.speedy-worldspeed)*nowframe
+            self.x = self.x - self.speedx*nowframe
 
     def get_bb(self):
         return self.x-15,self.y-15,self.x+15,self.y+15
@@ -289,17 +288,16 @@ class Genji_shadow:
     def __init__(self, xx,yy,num):
         self.x=xx
         self.y=yy
-        self.frame=0
         self.damage = 100
         self.image = load_image('genji_shadow.png')
         self.number=num%4
+        self.frame=0
     def draw(self):
         self.image.clip_draw(self.number*100, 0, 100, 100, self.x, self.y)
 
-    def update(self,worldspeed):
-        self.y = self.y- worldspeed/2
+    def update(self,nowframe,worldspeed):
+        self.y = self.y- worldspeed/2*nowframe
         self.frame=self.frame+1
-
     def get_bb(self):
         return self.x-50,self.y-50,self.x+50,self.y+50
     def draw_bb(self):
@@ -334,9 +332,9 @@ class Boss:                        #보스
         self.tanframe = 0
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
-    def update(self):
-        self.frame=(self.frame+1)%3
-        self.tanframe = (self.tanframe + 1) % 10
+    def update(self,nowframe):
+        self.frame=(self.frame+int(nowframe))%3
+        self.tanframe = (self.tanframe + int(nowframe)) % 10
 
         if self.pattern==0:
             if self.gox:
@@ -360,16 +358,16 @@ class Boss:                        #보스
 
             if self.goy:
                 if self.goy > 0 and self.goy - self.yspeed < 0:
-                    self.y += self.goy
+                    self.y += self.goy*nowframe
                     self.yspeed = 0
                     self.goy = 0
                 elif self.goy < 0 and self.goy - self.yspeed > 0:
-                    self.y += self.goy
+                    self.y += self.goy*nowframe
                     self.yspeed = 0
                     self.goy = 0
                 else:
-                    self.y += self.yspeed
-                    self.goy -= self.yspeed
+                    self.y += self.yspeed*nowframe
+                    self.goy -= self.yspeed*nowframe
     def get_bb(self):
         return self.x-250,self.y-80,self.x+250,self.y+100
 
@@ -411,10 +409,10 @@ class Bossbullet: #
         self.image = load_image('bosstan.png')
     def draw(self):
         self.image.clip_draw(self.frame*50, 0, 50, 50, self.x, self.y)
-    def update(self):
-        self.frame = (self.frame + 1) % 3
-        self.y=self.y+self.speedy
-        self.x = self.x + self.speedx
+    def update(self,nowframe):
+        self.frame = (self.frame + int(nowframe)) % 3
+        self.y=self.y+self.speedy*nowframe
+        self.x = self.x + self.speedx*nowframe
     def get_bb(self):
         return self.x-25,self.y-25,self.x+25,self.y+25
     def get_y(self):

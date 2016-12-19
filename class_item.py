@@ -17,7 +17,7 @@ class Item_Battery:                        #적3 겐지
 
     def draw(self):
         self.image.clip_draw(self.frame*30, 0, 30, 50, self.x, self.y)
-    def update(self,worldspeed):
+    def update(self,nowframe,worldspeed):
         if self.x>730:
             self.dirx=-1
         elif self.x<20:
