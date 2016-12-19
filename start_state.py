@@ -35,7 +35,7 @@ def update(frame_time):
         menuframe=(menuframe+1)%10
 
         if gamestart==1:
-            game_framework.push_state(stageone)
+            game_framework.push_state(stagetwo)
         #game_framework.quit()
     logo_time += frame_time
 
