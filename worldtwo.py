@@ -357,7 +357,7 @@ class worldclass:
                     self.sound.bastion_dead.play()
                     deadsine = 1
                 if bastion[i].y < -50 and deadsine == 0:
-                    print(bastion[i].y)
+
                     del_bastion.append(i)
                     deadsine = 1
 
@@ -376,12 +376,12 @@ class worldclass:
             for i in range(len(self.reinhardt)):
                 deadsine = 0
                 if self.reinhardt[i].hp <= 0 and deadsine == 0:
-                    print('50')
+
                     del_reinhardt.append(i)
                     deadsine = 1
                     self.sound.reinhartd_dead.play()
                 if self.reinhardt[i].y < -120 and deadsine == 0:
-                    print('55')
+
                     del_reinhardt.append(i)
                     deadsine = 1
 
@@ -397,7 +397,7 @@ class worldclass:
             for i in range(len(self.genji)):
                 deadsine = 0
                 if self.genji[i].hp <= 0 and deadsine == 0:
-                    print('50')
+
                     del_genji.append(i)
                     deadsine = 1
                     self.sound.genji_dead.play()
@@ -413,7 +413,7 @@ class worldclass:
 
             enemytemp = 0
             for i in range(len(del_genji)):
-                print('1')
+
                 del self.genji[(del_genji[i]) - enemytemp]
                 enemytemp = enemytemp + 1
             # 겐지 제거 완료
@@ -520,7 +520,6 @@ class worldclass:
             if len(enemyi) > 0: #제거한다
                 Ebullettemp = 0
                 for i in range(len(enemyi)):
-                    print('10')
                     del self.genji_shadow[enemyi[i] - Ebullettemp]
                     Ebullettemp = Ebullettemp + 1
             #업데이트완료
@@ -542,7 +541,6 @@ class worldclass:
             if len(enemyi) > 0: #제거한다
                 Ebullettemp = 0
                 for i in range(len(enemyi)):
-                    print('10')
                     del self.battery[enemyi[i] - Ebullettemp]
                     Ebullettemp = Ebullettemp + 1
             #업데이트 완료
@@ -589,7 +587,6 @@ class worldclass:
                     if len(bossi) > 0:  # 탄이 멀리 나갔을때 지운다.
                         Bbullettemp = 0
                         for i in range(len(bossi)):
-                            print('1212')
                             del bosstan[bossi[i] - Bbullettemp]
                             Bbullettemp = Bbullettemp + 1
 

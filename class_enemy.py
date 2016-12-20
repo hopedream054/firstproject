@@ -348,14 +348,14 @@ class Boss:                        #보스
                     self.x += self.xspeed
                     self.xspeed = 0
                     self.gox = 0
-                    print(self.x)
+
                     self.gox = -(self.x - 250)
                     self.xspeed = -30
                 elif self.gox < 0 and self.gox - self.xspeed >= 0:
                     self.x += self.xspeed
                     self.xspeed = 0
                     self.gox = 0
-                    print(self.x)
+
                     self.gox = (800 - self.x) - 250
                     self.xspeed = 30
                 else:
@@ -514,14 +514,12 @@ class TrueBoss:                        #보스
                     self.x += self.xspeed
                     self.xspeed = 0
                     self.gox = 0
-                    print(self.x)
                     self.gox = -(self.x - 250)
                     self.xspeed = -30
                 elif self.gox < 0 and self.gox - self.xspeed >= 0:
                     self.x += self.xspeed
                     self.xspeed = 0
                     self.gox = 0
-                    print(self.x)
                     self.gox = (800 - self.x) - 250
                     self.xspeed = 30
                 else:
