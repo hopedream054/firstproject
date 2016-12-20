@@ -7,7 +7,7 @@ from pico2d import *
 
 import game_framework
 
-from class_enemy import Enemy,Enemybullet,Boss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
+from class_enemy import Enemy,Enemybullet,TrueBoss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
 from class_Luci import Luci,bullet
 from class_item import Item_Battery
 from class_sound import Sound
@@ -67,10 +67,10 @@ class worldclass:
         global mainhero, total_frametime, redline, worldy, worldspeed, map
         global x_right, x_left, y_up, y_down  # 키의 상태값
         global bastion
-        global boss,blackimage
+        global boss,blackimage,bosstan
 
-        self.bgm = load_music('stageonebgm.mp3')
-        self.bgm.set_volume(49)
+        self.bgm = load_music('stagetwobgm.mp3')
+        self.bgm.set_volume(60)
         self.bgm.repeat_play()
 
         bastion = []
@@ -78,17 +78,18 @@ class worldclass:
         mainhero = Luci(300, 400)
         worldy = 0
         worldspeed = 10
-        boss = Boss()
+        boss = TrueBoss()
         x_right = x_left = y_up = y_down = False #키입력
         redline = False
         self.restart=0
         self.reinhardt=[]#라인하르트 초기화
-        self.reinhardt.append(Enemy_second(200,700))
+        #self.reinhardt.append(Enemy_second(200,700))
 
         self.genji = []  # 겐지 초기화
-        self.genji.append(Enemy_third(700, 700))
+        #self.genji.append(Enemy_third(700, 700))
         self.genji_atack=[]
         self.genji_shadow = []
+        bosstan=[]
 
         self.stage=0
         self.war=0
@@ -98,7 +99,7 @@ class worldclass:
         self.image_ending = load_image('endiing.png')
         self.warningimage=load_image('warning.png')
         self.battery = []
-        self.battery.append(Item_Battery(500, 700))
+        #self.battery.append(Item_Battery(500, 700))
 
         self.hitx=[]
         self.hity=[]
@@ -113,7 +114,7 @@ class worldclass:
     def draw(self,fram_time):
         global mainhero, redline, worldy
         global bastion, enemyatack
-        global boss,blackimage
+        global boss,blackimage,bosstan
         clear_canvas()
 
         map.draw()
@@ -198,7 +199,7 @@ class worldclass:
         global x_right, x_left, y_up, y_down
         global total_frametime
         global bastion, enemyatack
-        global boss
+        global boss,bosstan
 
         total_frametime += frame_time
 
@@ -211,6 +212,8 @@ class worldclass:
             self.restart=1
             for i in range(len(bastion)):
                 del bastion[0]
+            for i in range(len(bosstan)):
+                del bosstan[0]
         elif total_frametime > 0.05:
             nowframe=total_frametime*20
             total_frametime = 0
@@ -529,7 +532,7 @@ class worldclass:
 
                         if self.collide(mainhero, bosstan[i]) and delatack == 0 and mainhero.hp > 0:
                             mainhero.HP_state(bosstan[i].get_damage())
-                            enemyi.append(i)
+                            bossi.append(i)
                             delatack = 1
                         elif -50 > bosstan[i].y and delatack == 0:  # 화면밖으로 나간 총알
                             bossi.append(i)

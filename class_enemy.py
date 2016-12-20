@@ -328,10 +328,13 @@ class Boss:                        #보스
         self.yspeed=0
         self.damage = 100
         self.image = load_image('boss.png')
+        self.image_hp = load_image('boss_hp.png')
         self.pattern=0
         self.tanframe = 0
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
+        hhh = (int)(700-(400-self.hp)/4*7)
+        self.image_hp.clip_draw(0, 0,hhh, 50, 350+25-(700-hhh)/2, 950)
     def update(self,nowframe):
         self.frame=(self.frame+int(nowframe))%3
         self.tanframe = (self.tanframe + int(nowframe)) % 10
@@ -424,3 +427,80 @@ class Bossbullet: #
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
+
+class TrueBoss:                        #보스
+    def __init__(self): #보스 수정중 및
+        self.x=500
+        self.y=800
+        self.frame=0
+        self.hp=2000
+        self.gox=-300
+        self.goy=0
+        self.xspeed=-30
+        self.yspeed=0
+        self.damage = 100
+        self.image = load_image('boss.png')
+        self.image_hp = load_image('boss_hp.png')
+        self.pattern=0
+        self.tanframe = 0
+    def draw(self):
+        self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
+        hhh = (int)(700-(2000-self.hp)/20*7)
+        self.image_hp.clip_draw(0, 0,hhh, 50, 350+25-(700-hhh)/2, 950)
+    def update(self,nowframe):
+        self.frame=(self.frame+int(nowframe))%3
+        self.tanframe = (self.tanframe + int(nowframe)) % 10
+
+        if self.pattern==0:
+            if self.gox:
+                if self.gox > 0 and self.gox - self.xspeed <= 0:
+                    self.x += self.xspeed
+                    self.xspeed = 0
+                    self.gox = 0
+                    print(self.x)
+                    self.gox = -(self.x - 250)
+                    self.xspeed = -30
+                elif self.gox < 0 and self.gox - self.xspeed >= 0:
+                    self.x += self.xspeed
+                    self.xspeed = 0
+                    self.gox = 0
+                    print(self.x)
+                    self.gox = (800 - self.x) - 250
+                    self.xspeed = 30
+                else:
+                    self.x += self.xspeed
+                    self.gox -= self.xspeed
+
+            if self.goy:
+                if self.goy > 0 and self.goy - self.yspeed < 0:
+                    self.y += self.goy*nowframe
+                    self.yspeed = 0
+                    self.goy = 0
+                elif self.goy < 0 and self.goy - self.yspeed > 0:
+                    self.y += self.goy*nowframe
+                    self.yspeed = 0
+                    self.goy = 0
+                else:
+                    self.y += self.yspeed*nowframe
+                    self.goy -= self.yspeed*nowframe
+    def get_bb(self):
+        return self.x-250,self.y-80,self.x+250,self.y+100
+
+    def get_aa(self):##
+        return self.x, self.y
+
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+    def HP_state(self,a):
+        self.hp=self.hp-a
+    def get_hp(self):
+        return self.hp
+    def get_damage(self):
+        return self.damage
+    def get_tanframe(self):
+        return self.tanframe
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())

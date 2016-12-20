@@ -23,7 +23,7 @@ class Sound:                        #적3 겐지
         self.item_get.set_volume(30)
 
         self.boss_dada = load_wav('boss_dada.wav')
-        self.boss_dada.set_volume(20)
+        self.boss_dada.set_volume(10)
 
         self.warningsound = load_wav('warningsound.wav')
         self.warningsound.set_volume(50)

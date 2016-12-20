@@ -17,7 +17,7 @@ class Luci:                   #메인캐릭터 자
         self.boostheal = 0
         self.boostspeed = 0
         self.boost_charge = 0
-
+        self.saveframe=0
         self.image=load_image('luci_character.png')
         self.backhealimage = load_image('backlight_heal.png')
         self.backspeedimage= load_image('backlight_speed.png')
@@ -40,7 +40,11 @@ class Luci:                   #메인캐릭터 자
     def update(self,nowframe,x_right, x_left, y_up, y_down):
         if self.hit>0:
             self.hit=(self.hit+int(nowframe))%10
-        self.frame=(self.frame+int(nowframe))%8
+
+        self.saveframe=self.saveframe+nowframe/4*3
+        if int(self.saveframe):
+            self.frame = (self.frame + 1) % 8
+            self.saveframe=0
         self.fireframe=(self.fireframe+int(nowframe))%6
 
         if self.boost_charge>0:
