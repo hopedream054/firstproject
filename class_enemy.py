@@ -96,14 +96,14 @@ class Enemy_second:                        #적2 라인하르트
         self.x=xx
         self.y=yy
         self.frame=0
-        self.hp=30
+        self.hp=40
         self.sence=0
         self.atacktime=0
         self.damage = 100
 
 
         self.state=3 #상태  1번 대기 2번 공격 3번 가드
-        self.shild_hp=40
+        self.shild_hp=200
 
         self.image_wait = load_image('Reinhardt_wait.png')
         self.image_guard = load_image('Reinhardt_guard.png')
@@ -138,10 +138,10 @@ class Enemy_second:                        #적2 라인하르트
         elif self.state!=2 and self.frame>=40:
             self.frame=0
             self.state=3
-            self.shild_hp=40
+            self.shild_hp=70
 
     def create_shild(self):
-        self.shild_hp=4
+        self.shild_hp=200
 
     def get_bb(self):
         if self.shild_hp>0 and self.state==3: return self.x - 120, self.y - 100, self.x + 120, self.y + 90
@@ -321,7 +321,7 @@ class Boss:                        #보스
         self.x=500
         self.y=800
         self.frame=0
-        self.hp=400
+        self.hp=1200
         self.gox=-300
         self.goy=0
         self.xspeed=-30
@@ -333,7 +333,7 @@ class Boss:                        #보스
         self.tanframe = 0
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
-        hhh = (int)(700-(400-self.hp)/4*7)
+        hhh = (int)(700-(1200-self.hp)/12*7)
         self.image_hp.clip_draw(0, 0,hhh, 50, 350+25-(700-hhh)/2, 950)
     def update(self,nowframe):
         self.frame=(self.frame+int(nowframe))%3
@@ -407,7 +407,7 @@ class Bossbullet: #
         self.speedx= (tx-xx)/(tot/20)
         self.speedy= (ty-yy)/(tot/20)
 
-        self.damage = 10
+        self.damage = 50
         self.frame = 0
         self.image = load_image('bosstan.png')
     def draw(self):

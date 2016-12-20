@@ -7,7 +7,7 @@ from pico2d import *
 
 import game_framework
 
-from class_enemy import Enemy,Enemybullet,Boss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
+from class_enemy import Enemy,Enemybullet,TrueBoss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
 from class_Luci import Luci,bullet
 from class_item import Item_Battery
 from class_sound import Sound
@@ -73,13 +73,16 @@ class worldclass:
         self.bgm.set_volume(60)
         self.bgm.repeat_play()
 
+
         bastion = []
         total_frametime = 0
         mainhero = Luci(300, 400)
         worldy = 0
         worldspeed = 10
-        boss = Boss()
-        x_right = x_left = y_up = y_down = False #키입력
+        boss = TrueBoss()
+        x_right = x_left = y_up = y_down =False #키입력
+        self.spaceatack = False
+        self.tantime=0
         redline = False
         self.restart=0
         self.reinhardt=[]#라인하르트 초기화
@@ -216,12 +219,17 @@ class worldclass:
                 del bosstan[0]
         elif total_frametime > 0.05:
             nowframe=total_frametime*20
+
+
             total_frametime = 0
             mainhero.update(nowframe,x_right, x_left, y_up, y_down)
 
             worldy = worldy + worldspeed
 
-
+            if self.spaceatack==True:
+                if int(self.tantime) % 3 == 0 :
+                    self.heroatack.append(bullet(mainhero.x, mainhero.y + 50))
+                self.tantime = self.tantime + nowframe
             for i in range(self.hitn):
                 print(self.hitn)
                 print(i)
@@ -532,7 +540,7 @@ class worldclass:
 
                         if self.collide(mainhero, bosstan[i]) and delatack == 0 and mainhero.hp > 0:
                             mainhero.HP_state(bosstan[i].get_damage())
-                            enemyi.append(i)
+                            bossi.append(i)
                             delatack = 1
                         elif -50 > bosstan[i].y and delatack == 0:  # 화면밖으로 나간 총알
                             bossi.append(i)
@@ -578,7 +586,7 @@ class worldclass:
                 elif event.key == SDLK_DOWN:
                     y_down = True
                 if event.key == SDLK_SPACE:
-                    self.heroatack.append(bullet(mainhero.x, mainhero.y + 50))
+                    self.spaceatack=True
                 if event.key == SDLK_z and mainhero.boost_charge==0:
                     print('z')
                     mainhero.boost_charge=1
@@ -608,6 +616,9 @@ class worldclass:
                     y_up = False
                 elif event.key == SDLK_DOWN:
                     y_down = False
+                if event.key == SDLK_SPACE:
+                    self.spaceatack=False
+                    self.tantime=0
 
     def collide(self,a, b):  # a:anemy b:tan
         left_a, bottom_a, right_a, top_a = a.get_bb()

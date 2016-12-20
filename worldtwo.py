@@ -73,13 +73,16 @@ class worldclass:
         self.bgm.set_volume(60)
         self.bgm.repeat_play()
 
+
         bastion = []
         total_frametime = 0
         mainhero = Luci(300, 400)
         worldy = 0
         worldspeed = 10
         boss = TrueBoss()
-        x_right = x_left = y_up = y_down = False #키입력
+        x_right = x_left = y_up = y_down =False #키입력
+        self.spaceatack = False
+        self.tantime=0
         redline = False
         self.restart=0
         self.reinhardt=[]#라인하르트 초기화
@@ -216,12 +219,17 @@ class worldclass:
                 del bosstan[0]
         elif total_frametime > 0.05:
             nowframe=total_frametime*20
+
+
             total_frametime = 0
             mainhero.update(nowframe,x_right, x_left, y_up, y_down)
 
             worldy = worldy + worldspeed
 
-
+            if self.spaceatack==True:
+                if int(self.tantime) % 3 == 0 :
+                    self.heroatack.append(bullet(mainhero.x, mainhero.y + 50))
+                self.tantime = self.tantime + nowframe
             for i in range(self.hitn):
                 print(self.hitn)
                 print(i)
@@ -578,7 +586,7 @@ class worldclass:
                 elif event.key == SDLK_DOWN:
                     y_down = True
                 if event.key == SDLK_SPACE:
-                    self.heroatack.append(bullet(mainhero.x, mainhero.y + 50))
+                    self.spaceatack=True
                 if event.key == SDLK_z and mainhero.boost_charge==0:
                     print('z')
                     mainhero.boost_charge=1
@@ -608,6 +616,9 @@ class worldclass:
                     y_up = False
                 elif event.key == SDLK_DOWN:
                     y_down = False
+                if event.key == SDLK_SPACE:
+                    self.spaceatack=False
+                    self.tantime=0
 
     def collide(self,a, b):  # a:anemy b:tan
         left_a, bottom_a, right_a, top_a = a.get_bb()

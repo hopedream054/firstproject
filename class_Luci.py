@@ -138,12 +138,12 @@ class bullet:                  #주인공 기본 탄환
         self.y=yy
         self.speed=40
         self.damage=10
-        self.image = load_image('soundwave.png')
+        self.image = load_image('soundwavecharge.png')
 
 
     def draw(self):
 
-        self.image.clip_draw(0, 0, 30, 30, self.x, self.y)
+        self.image.clip_draw(0, 0, 50, 70, self.x, self.y)
 
     def update(self,nowframe):
         self.y=self.y+self.speed*nowframe
