@@ -7,7 +7,7 @@ from pico2d import *
 
 import game_framework
 
-from class_enemy import Enemy,Enemybullet,TrueBoss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
+from class_enemy import Enemy,Enemybullet,TrueBoss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow,partbullet
 from class_Luci import Luci,bullet
 from class_item import Item_Battery
 from class_sound import Sound
@@ -94,8 +94,13 @@ class worldclass:
         self.genji_shadow = []
         bosstan=[]
 
+
+        self.parttan=[]
+
         self.stage=0
         self.war=0
+
+
 
         blackimage= load_image('black.png')
         self. hitimage = load_image('hit_effect.png')
@@ -145,6 +150,8 @@ class worldclass:
                     boss.draw()
                     for i in range(len(bosstan)):
                         bosstan[i].draw()
+                for i in range(len(self.parttan)):
+                    self.parttan[i].draw()
 
             for i in range(len(enemyatack)):
                 enemyatack[i].draw()
@@ -239,10 +246,14 @@ class worldclass:
 
             if worldy:  #여기가 생산라인
                 if worldy % 300 == 0 and worldy < 7000:
-                    for i in range(random.randint(1, 2)):
+                    for i in range(random.randint(1, 3)):
                         randtemp=random.randint(0, 5)
-                        if randtemp>0 and   randtemp<4:
+                        if randtemp>0 and   randtemp<3:
                             bastion.append(Enemy(random.randint(1, 7) * 100, 1050))
+                        elif randtemp==3 :
+                            temptemp=random.randint(1, 6)
+                            bastion.append(Enemy(temptemp * 120, 1180))
+                            self.reinhardt.append(Enemy_second(temptemp * 120, 1060))
                         elif randtemp==4 :
                             self.reinhardt.append(Enemy_second(random.randint(1, 6) * 120, 1060))
                         elif randtemp==5 :
@@ -305,6 +316,20 @@ class worldclass:
                 if worldy > 8500: #보스전 돌입을 말한다. 나중에 추가로 해준다.
                     if self.collide(boss, self.heroatack[i]) and touching_heroatack == 0 and boss.hp > 0:
                         boss.HP_state(self.heroatack[i].get_damage())
+                        self.hitx.append(self.heroatack[i].x)
+                        self.hity.append(self.heroatack[i].y)
+                        self.hitn = self.hitn + 1
+                        del_heroatack.append(i)
+                        touching_heroatack = 1
+                    elif boss.collide_partone(self.heroatack[i]) and touching_heroatack == 0 and boss.parton==1 and boss.oneframe==0:
+                        boss.partonehp=boss.partonehp-self.heroatack[i].get_damage()
+                        self.hitx.append(self.heroatack[i].x)
+                        self.hity.append(self.heroatack[i].y)
+                        self.hitn = self.hitn + 1
+                        del_heroatack.append(i)
+                        touching_heroatack = 1
+                    elif boss.collide_parttwo(self.heroatack[i]) and touching_heroatack == 0 and boss.parton==1 and boss.twoframe==0:
+                        boss.parttwohp=boss.parttwohp-self.heroatack[i].get_damage()
                         self.hitx.append(self.heroatack[i].x)
                         self.hity.append(self.heroatack[i].y)
                         self.hitn = self.hitn + 1
@@ -533,6 +558,12 @@ class worldclass:
                         self.sound.bastion_dead.play()
                         bosstan.append(Bossbullet(boss.x + 100, boss.y, mainhero.x, mainhero.y))
 
+                    if boss.tanoneframe%3 == 1 and boss.partonehp>0:
+                        self.parttan.append(partbullet(boss.partonex, boss.partoney, mainhero.x, mainhero.y))
+
+                    if boss.tantwoframe == 1:
+                        self.parttan.append(partbullet(boss.parttwox, boss.parttwoy, mainhero.x, mainhero.y))
+
                     bossi = []
                     for i in range(len(bosstan)):
                         bosstan[i].update(nowframe)
@@ -560,6 +591,34 @@ class worldclass:
                         for i in range(len(bossi)):
                             print('1212')
                             del bosstan[bossi[i] - Bbullettemp]
+                            Bbullettemp = Bbullettemp + 1
+
+                    parti = []
+                    for i in range(len(self.parttan)):
+                        self.parttan[i].update(nowframe)
+                        delatack = 0
+
+                        if self.collide(mainhero, self.parttan[i]) and delatack == 0 and mainhero.hp > 0:
+                            mainhero.HP_state(self.parttan[i].get_damage())
+                            parti.append(i)
+                            delatack = 1
+                        elif -50 > self.parttan[i].y and delatack == 0:  # 화면밖으로 나간 총알
+                            parti.append(i)
+                            delatack = 1
+                        elif 1000 < self.parttan[i].y and delatack == 0:
+                            parti.append(i)
+                            delatack = 1
+                        elif 800 < self.parttan[i].x and delatack == 0:
+                            parti.append(i)
+                            delatack = 1
+                        elif 0 > self.parttan[i].x and delatack == 0:
+                            parti.append(i)
+                            delatack = 1
+
+                    if len( parti) > 0:  # 탄이 멀리 나갔을때 지운다.
+                        Bbullettemp = 0
+                        for i in range(len( parti)):
+                            del self.parttan[ parti[i] - Bbullettemp]
                             Bbullettemp = Bbullettemp + 1
 
                 if self.collide(mainhero, boss):
@@ -601,7 +660,8 @@ class worldclass:
                     mainhero.boostspeed_count = 1
                     mainhero.boostheal = 0
                     mainhero.boostspeed = 25
-
+                if event.key == SDLK_2:
+                    mainhero.hp=9999
                 if event.key == SDLK_1:
                     if redline:
                         redline = False

@@ -7,7 +7,7 @@ from pico2d import *
 
 import game_framework
 
-from class_enemy import Enemy,Enemybullet,TrueBoss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
+from class_enemy import Enemy,Enemybullet,Boss,Bossbullet,Enemy_second,Enemy_third,Genji_shot,Genji_shadow
 from class_Luci import Luci,bullet
 from class_item import Item_Battery
 from class_sound import Sound
@@ -79,7 +79,7 @@ class worldclass:
         mainhero = Luci(300, 400)
         worldy = 0
         worldspeed = 10
-        boss = TrueBoss()
+        boss = Boss()
         x_right = x_left = y_up = y_down =False #키입력
         self.spaceatack = False
         self.tantime=0

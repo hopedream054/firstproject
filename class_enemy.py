@@ -331,6 +331,8 @@ class Boss:                        #보스
         self.image_hp = load_image('boss_hp.png')
         self.pattern=0
         self.tanframe = 0
+
+
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
         hhh = (int)(700-(1200-self.hp)/12*7)
@@ -338,6 +340,7 @@ class Boss:                        #보스
     def update(self,nowframe):
         self.frame=(self.frame+int(nowframe))%3
         self.tanframe = (self.tanframe + int(nowframe)) % 10
+
 
         if self.pattern==0:
             if self.gox:
@@ -410,12 +413,18 @@ class Bossbullet: #
         self.damage = 50
         self.frame = 0
         self.image = load_image('bosstan.png')
+
+
+
     def draw(self):
         self.image.clip_draw(self.frame*50, 0, 50, 50, self.x, self.y)
     def update(self,nowframe):
         self.frame = (self.frame + int(nowframe)) % 3
         self.y=self.y+self.speedy*nowframe
         self.x = self.x + self.speedx*nowframe
+
+
+
     def get_bb(self):
         return self.x-25,self.y-25,self.x+25,self.y+25
     def get_y(self):
@@ -443,14 +452,62 @@ class TrueBoss:                        #보스
         self.image_hp = load_image('boss_hp.png')
         self.pattern=0
         self.tanframe = 0
+
+        self.parton = 0
+        self.image_part = load_image('part.png')
+        self.partonex = 0
+        self.partoney = 0
+        self.partonehp=60
+        self.oneframe=0
+        self.tanoneframe = 0
+        self.parttwox = 0
+        self.parttwoy = 0
+        self.parttwohp = 60
+        self.twoframe = 0
+        self.tantwoframe = 0
     def draw(self):
         self.image.clip_draw(self.frame * 500, 0, 500, 250, self.x, self.y)
         hhh = (int)(700-(2000-self.hp)/20*7)
         self.image_hp.clip_draw(0, 0,hhh, 50, 350+25-(700-hhh)/2, 950)
+
+        if self.parton==1:
+            if self.oneframe==0:
+                self.image_part.clip_draw(0, 0, 200, 200, self.partonex, self.partoney)
+            else:
+                self.image_part.clip_draw(200, 0, 200, 200, self.partonex, self.partoney)
+            if self.twoframe==0:
+                self.image_part.clip_draw(0, 0, 200, 200, self.parttwox, self.parttwoy)
+            else:
+                self.image_part.clip_draw(200, 0, 200, 200, self.parttwox, self.parttwoy)
     def update(self,nowframe):
         self.frame=(self.frame+int(nowframe))%3
         self.tanframe = (self.tanframe + int(nowframe)) % 10
 
+        if self.hp<1000:
+            if self.parton==0:
+                self.parton = 1
+                self.partonex = 100
+                self.partoney = 600
+                self.parttwox = 650
+                self.parttwoy = 600
+            if self.oneframe >0:
+                self.oneframe=(self.oneframe+int(nowframe))%230
+                if self.oneframe==0:
+                    self.tanoneframe=0
+                    self.partonehp=80
+            elif self.oneframe==0 and self.partonehp<=0:
+                self.oneframe=1
+            else:
+                self.tanoneframe=(self.tanoneframe+1)%10
+            if self.twoframe >0:
+                self.twoframe=(self.twoframe+int(nowframe))%230
+                if self.twoframe==0:
+                    self.tantwoframe=0
+                    self.parttwohp=80
+            elif self.twoframe==0 and self.parttwohp<=0:
+                self.twoframe=1
+            else:
+                self.tantwoframe=(self.tantwoframe+1)%10
         if self.pattern==0:
             if self.gox:
                 if self.gox > 0 and self.gox - self.xspeed <= 0:
@@ -495,12 +552,79 @@ class TrueBoss:                        #보스
     def get_y(self):
         return self.y
     def HP_state(self,a):
-        self.hp=self.hp-a
+        if self.hp<1000:
+            if self.oneframe>0 and self.twoframe>0:
+                self.hp = self.hp - a
+        else:
+            self.hp=self.hp-a
     def get_hp(self):
         return self.hp
+    def get_partone(self):
+        return self.partonex - 80, self.partoney - 80, self.partonex + 80, self.partoney + 80
+    def get_parttwo(self):
+        return self.parttwox - 80, self.parttwoy - 80, self.parttwox + 80, self.parttwoy + 80
     def get_damage(self):
         return self.damage
     def get_tanframe(self):
         return self.tanframe
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+        if self.parton==1:
+            draw_rectangle(*self.get_partone())
+            draw_rectangle(*self.get_parttwo())
+    def collide_partone(self, a):  # a:anemy b:tan
+        left_a, bottom_a, right_a, top_a = a.get_bb()
+        left_b, bottom_b, right_b, top_b = self.get_partone()
+
+        if left_a > right_b: return False
+        if right_a < left_b: return False
+        if top_a < bottom_b: return False
+        if bottom_a > top_b: return False
+
+        return True#충돌
+    def collide_parttwo(self, a):  # a:anemy b:tan
+        left_a, bottom_a, right_a, top_a = a.get_bb()
+        left_b, bottom_b, right_b, top_b = self.get_parttwo()
+
+        if left_a > right_b: return False
+        if right_a < left_b: return False
+        if top_a < bottom_b: return False
+        if bottom_a > top_b: return False
+
+        return True#충돌
+
+
+
+class partbullet: #
+    def __init__(self, xx,yy,tx,ty):
+        self.x=xx
+        self.y=yy
+        self.targetx = tx
+        self.targety = ty
+
+        tot=math.sqrt(tx * tx + ty * ty)
+        if tot<500: tot=500
+        if tot>750: tot=500
+        self.speedx= (tx-xx)/(tot/30)
+        self.speedy= (ty-yy)/(tot/30)
+
+        self.damage = 70
+        self.frame = 0
+        self.image = load_image('part_atack.png')
+
+    def draw(self):
+        self.image.clip_draw(0, 0, 60, 60, self.x, self.y)
+    def update(self,nowframe):
+        self.y=self.y+self.speedy*nowframe
+        self.x = self.x + self.speedx*nowframe
+
+    def get_bb(self):
+        return self.x-30,self.y-30,self.x+30,self.y+30
+    def get_y(self):
+        return self.y
+    def get_x(self):
+        return self.x
+    def get_damage(self):
+        return self.damage
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
